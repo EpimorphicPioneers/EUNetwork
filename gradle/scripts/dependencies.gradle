@@ -28,10 +28,6 @@ dependencies {
     // Registrate
     modApi("com.tterrag.registrate:Registrate:${forge.versions.registrate.get()}")
 
-    // Create and its dependencies
-    modCompileOnly("com.simibubi.create:create-${libs.versions.minecraft.get()}:${forge.versions.createForge.get()}:all") { transitive = false }
-    modCompileOnly forge.flywheel
-
     // JEI
     modCompileOnly(forge.jei.common.api) { transitive = false }
     modCompileOnly(forge.jei.forge.api) { transitive = false }
@@ -46,20 +42,8 @@ dependencies {
     modCompileOnly("dev.emi:emi-forge:${forge.versions.emi.get()}:api")
     modImplementation forge.emi
 
-    // TOP
-    modCompileOnly(forge.theoneprobe) { transitive = false }
-
     // Jade
     modImplementation(forge.jade)
-
-    // AE2
-    modImplementation(forge.ae2) { transitive = false }
-
-    //AlmostUnified
-    modImplementation(forge.almostUnified.forge)
-
-    // KJS
-    modImplementation forge.kubejs
 
     // Mixin Extras
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${this.forge.versions.mixinextras.get()}"))
@@ -68,11 +52,9 @@ dependencies {
     // Configuration
     modApi(forge.configuration)
 
-    // Shimmer
-    modImplementation(forge.shimmer.forge) { transitive = false }
-    modImplementation("maven.modrinth:embeddium:0.2.10+mc1.20.1")
-    modImplementation("maven.modrinth:oculus:1.20.1-1.6.9")
-
     // GTM
     modImplementation(forge.gtm) { transitive = false }
+
+    // Monomorphism
+    modImplementation(files("lib/monomorphism-1.20.1-1.0.7.jar"))
 }
