@@ -1,21 +1,19 @@
-package com.epimorphismmc.eunetwork.common;//package cn.gtcommunity.epimorphism.common.eunetwork;
+//package com.epimorphismmc.eunetwork.common;
 //
-//import cn.gtcommunity.epimorphism.api.eunetwork.AccessLevel;
-//import cn.gtcommunity.epimorphism.api.eunetwork.NetworkMember;
+//import com.epimorphismmc.eunetwork.api.machine.feature.IEUNetMachine;
 //import net.minecraft.world.entity.player.Player;
 //
 //import javax.annotation.Nonnull;
-//import java.lang.reflect.Array;
 //import java.util.*;
 //
-//public class ServerEUNetwork extends EUNetwork {
-//    private static final Comparator<IEUNetworkMachine> sDescendingOrder =
+//public class ServerEUNetwork extends EUNetworkBase {
+//    private static final Comparator<IEUNetMachine> sDescendingOrder =
 //            (lhs, rhs) -> Integer.compare(rhs.getTransferHandler().getPriority(),
 //                    lhs.getTransferHandler().getPriority());
 //
 //    // LinkedList doesn't create large arrays, should be better
-//    private final LinkedList<IEUNetworkMachine> mToAdd = new LinkedList<>();
-//    private final LinkedList<IEUNetworkMachine> mToRemove = new LinkedList<>();
+//    private final LinkedList<IEUNetMachine> mToAdd = new LinkedList<>();
+//    private final LinkedList<IEUNetMachine> mToRemove = new LinkedList<>();
 //
 //    private boolean mSortConnections = true;
 //
@@ -32,7 +30,7 @@ package com.epimorphismmc.eunetwork.common;//package cn.gtcommunity.epimorphism.
 //    }
 //
 //    private void handleConnectionQueue() {
-//        IEUNetworkMachine device;
+//        IEUNetMachine device;
 //        while ((device = mToAdd.poll()) != null) {
 //            for (int type = 0; type < sLogicalTypes.length; type++) {
 //                if (sLogicalTypes[type].isInstance(device)) {
@@ -66,13 +64,13 @@ package com.epimorphismmc.eunetwork.common;//package cn.gtcommunity.epimorphism.
 //
 //        mBufferLimiter = 0;
 //
-//        List<IEUNetworkMachine> devices = getLogicalDevices(ANY);
+//        List<IEUNetMachine> devices = getLogicalDevices(ANY);
 //        for (var d : devices) {
 //            d.getTransferHandler().onCycleStart();
 //        }
 //
-//        List<IEUNetworkMachine> plugs = getLogicalDevices(PLUG);
-//        List<IEUNetworkMachine> points = getLogicalDevices(POINT);
+//        List<IEUNetMachine> plugs = getLogicalDevices(PLUG);
+//        List<IEUNetMachine> points = getLogicalDevices(POINT);
 //        if (!points.isEmpty() && !plugs.isEmpty()) {
 //            // 推入堆栈，因为他们在下面调用了太多次
 //            final TransferIterator plugIterator = mPlugTransferIterator.reset(plugs);
@@ -80,8 +78,8 @@ package com.epimorphismmc.eunetwork.common;//package cn.gtcommunity.epimorphism.
 //            CYCLE:
 //            while (pointIterator.hasNext()) {
 //                while (plugIterator.hasNext()) {
-//                    IEUNetworkMachine plug = plugIterator.next();
-//                    IEUNetworkMachine point = pointIterator.next();
+//                    IEUNetMachine plug = plugIterator.next();
+//                    IEUNetMachine point = pointIterator.next();
 //                    if (plug.getDeviceType() == point.getDeviceType()) {
 //                        break CYCLE; // 存储始终具有最低优先级，此处可以打破循环。
 //                    }

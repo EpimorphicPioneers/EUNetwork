@@ -7,7 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 public class NetworkStatistics {
     public static final int CHANGE_COUNT = 6;
 
-    private final EUNetwork network;
+    private final EUNetworkBase network;
 
     private int timer;
 
@@ -28,7 +28,7 @@ public class NetworkStatistics {
 
     private long startNanoTime;
 
-    public NetworkStatistics(EUNetwork network) {
+    public NetworkStatistics(EUNetworkBase network) {
         this.network = network;
         energyChange.size(CHANGE_COUNT);
     }

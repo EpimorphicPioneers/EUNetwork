@@ -1,6 +1,6 @@
 package com.epimorphismmc.eunetwork.utils;
 
-import com.epimorphismmc.eunetwork.common.EUNetwork;
+import com.epimorphismmc.eunetwork.common.EUNetworkBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
@@ -50,6 +50,6 @@ public class EPNetUtil {
     }
 
     public static boolean isBadNetworkName(@Nonnull String s) {
-        return s.isEmpty() || s.length() > EUNetwork.MAX_NETWORK_NAME_LENGTH;
+        return s.isEmpty() || s.length() > EUNetworkBase.MAX_NETWORK_NAME_LENGTH;
     }
 }

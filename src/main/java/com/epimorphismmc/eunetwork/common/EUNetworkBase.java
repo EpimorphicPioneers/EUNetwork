@@ -28,7 +28,7 @@ import java.util.UUID;
  *  客户端在运行服务器端网络时，需要进行双侧检查以确保安全性。服务器端数据将与游戏保存一起持久存储
  */
 @ParametersAreNonnullByDefault
-public class EUNetwork {
+public class EUNetworkBase {
 
     /**
      * 无效网络可避免可空性检查，此网络上的任何操作都是无效的。
@@ -36,7 +36,7 @@ public class EUNetwork {
      * 即使执行了操作，也不会出现错误。
      * 断开连接的设备被视为已连接到此网络。
      */
-    public static final EUNetwork INVALID = new EUNetwork(EUNetConstants.INVALID_NETWORK_ID, "", Util.NIL_UUID);
+    public static final EUNetworkBase INVALID = new EUNetworkBase(EUNetConstants.INVALID_NETWORK_ID, "", Util.NIL_UUID);
 
     public static final int MAX_NETWORK_NAME_LENGTH = 24;
 
@@ -56,15 +56,15 @@ public class EUNetwork {
     final NetworkStatistics mStatistics = new NetworkStatistics(this);
     final HashMap<UUID, NetworkMember> mMemberMap = new HashMap<>();
 
-    EUNetwork() {/**/}
+    EUNetworkBase() {/**/}
 
-    private EUNetwork(int id, String name, @Nonnull UUID owner) {
+    private EUNetworkBase(int id, String name, @Nonnull UUID owner) {
         mID = id;
         mName = name;
         mOwnerUUID = owner;
     }
 
-    EUNetwork(int id, String name, @Nonnull Player owner) {
+    EUNetworkBase(int id, String name, @Nonnull Player owner) {
         this(id, name, owner.getUUID());
         mMemberMap.put(mOwnerUUID, NetworkMember.create(owner, AccessLevel.OWNER));
     }
