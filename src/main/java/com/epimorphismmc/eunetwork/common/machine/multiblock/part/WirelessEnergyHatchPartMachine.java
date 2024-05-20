@@ -1,6 +1,6 @@
 package com.epimorphismmc.eunetwork.common.machine.multiblock.part;
 
-import com.epimorphismmc.eunetwork.api.machine.feature.IEUNetMachine;
+import com.epimorphismmc.eunetwork.api.machine.feature.IEUNetworkMachine;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.IWorkable;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
@@ -14,7 +14,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class WirelessEnergyHatchPartMachine extends EnergyHatchPartMachine implements IEUNetMachine, IWorkable {
+public class WirelessEnergyHatchPartMachine extends EnergyHatchPartMachine implements IEUNetworkMachine, IWorkable {
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(EnergyHatchPartMachine.class, EnergyHatchPartMachine.MANAGED_FIELD_HOLDER);
     public WirelessEnergyHatchPartMachine(IMachineBlockEntity holder, int tier, IO io, int amperage, Object... args) {
         super(holder, tier, io, amperage, args);

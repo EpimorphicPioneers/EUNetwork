@@ -56,5 +56,5 @@ dependencies {
     modImplementation(forge.gtm) { transitive = false }
 
     // Monomorphism
-    modImplementation(files("lib/monomorphism-1.20.1-1.0.7.jar"))
+    modImplementation(files("lib/monomorphism-1.20.1-1.0.8.jar"))
 }

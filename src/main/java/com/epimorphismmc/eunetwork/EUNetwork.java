@@ -4,6 +4,8 @@ import com.epimorphismmc.eunetwork.client.ClientProxy;
 import com.epimorphismmc.eunetwork.common.CommonProxy;
 import com.epimorphismmc.eunetwork.config.EUNetConfigHolder;
 import com.epimorphismmc.eunetwork.data.EUNetLangHandler;
+import com.epimorphismmc.eunetwork.network.c2s.CPacketEUNetworkPayload;
+import com.epimorphismmc.eunetwork.network.s2c.SPacketEUNetworkPayload;
 import com.epimorphismmc.monomorphism.MOMod;
 import com.epimorphismmc.monomorphism.datagen.MOProviderTypes;
 import com.epimorphismmc.monomorphism.registry.registrate.MORegistrate;
@@ -20,7 +22,7 @@ public class EUNetwork extends MOMod<CommonProxy> {
 
     public static EUNetwork instance;
 
-    public EUNetwork () {
+    public EUNetwork() {
         super();
     }
 
@@ -53,6 +55,12 @@ public class EUNetwork extends MOMod<CommonProxy> {
     @Override
     public void addDataGenerator(MORegistrate registrate) {
         registrate.addDataGenerator(MOProviderTypes.MO_LANG, EUNetLangHandler::init);
+    }
+
+    @Override
+    public void registerMessages(INetworking network) {
+        network.registerS2C(SPacketEUNetworkPayload.class);
+        network.registerC2S(CPacketEUNetworkPayload.class);
     }
 
     public static ResourceLocation id(String path) {

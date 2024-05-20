@@ -1,10 +1,10 @@
 package com.epimorphismmc.eunetwork.common;
 
 import com.epimorphismmc.eunetwork.api.AccessLevel;
-import com.epimorphismmc.eunetwork.api.EUNetConstants;
+import com.epimorphismmc.eunetwork.api.EUNetValues;
 import com.epimorphismmc.eunetwork.api.NetworkMember;
-import com.epimorphismmc.eunetwork.utils.EPNetUtil;
-import net.minecraft.Util;
+import com.epimorphismmc.eunetwork.utils.EUNetUtils;
+import lombok.Getter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -15,6 +15,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -30,28 +31,23 @@ import java.util.UUID;
 @ParametersAreNonnullByDefault
 public class EUNetworkBase {
 
-    /**
-     * 无效网络可避免可空性检查，此网络上的任何操作都是无效的。
-     * 您可以检查 isValid() 以跳过您的操作。
-     * 即使执行了操作，也不会出现错误。
-     * 断开连接的设备被视为已连接到此网络。
-     */
-    public static final EUNetworkBase INVALID = new EUNetworkBase(EUNetConstants.INVALID_NETWORK_ID, "", Util.NIL_UUID);
-
     public static final int MAX_NETWORK_NAME_LENGTH = 24;
 
     public static final String NETWORK_NAME = "name";
     public static final String OWNER_UUID = "owner";
     public static final String MEMBERS = "members";
-    public static final String CONNECTIONS = "connections";
+    public static final String STORAGE = "storage";
 
     //////////////////////////////////////
     //*******       Data        ********//
     //////////////////////////////////////
 
-    int mID;
-    String mName;
-    UUID mOwnerUUID;
+    @Getter
+    int id; // 正整数或 EUNetConstants.INVALID_NETWORK_ID
+    @Getter
+    String name;
+    @Getter
+    UUID ownerUUID;
 
     final NetworkStatistics mStatistics = new NetworkStatistics(this);
     final HashMap<UUID, NetworkMember> mMemberMap = new HashMap<>();
@@ -59,41 +55,19 @@ public class EUNetworkBase {
     EUNetworkBase() {/**/}
 
     private EUNetworkBase(int id, String name, @Nonnull UUID owner) {
-        mID = id;
-        mName = name;
-        mOwnerUUID = owner;
+        this.id = id;
+        this.name = name;
+        this.ownerUUID = owner;
     }
 
     EUNetworkBase(int id, String name, @Nonnull Player owner) {
         this(id, name, owner.getUUID());
-        mMemberMap.put(mOwnerUUID, NetworkMember.create(owner, AccessLevel.OWNER));
-    }
-
-    /**
-     * 返回此网络的唯一 ID。
-     * @return 正整数或 EUNetConstants.INVALID_NETWORK_ID
-     */
-    public final int getNetworkID() {
-        return mID;
-    }
-
-    @Nonnull
-    public final UUID getOwnerUUID() {
-        return mOwnerUUID;
-    }
-
-    /**
-     * 返回网络名称。对于无效网络，此值为空，客户端应改为显示替代文本。
-     * @return 此网络的名称
-     */
-    @Nonnull
-    public final String getNetworkName() {
-        return mName;
+        mMemberMap.put(ownerUUID, NetworkMember.create(owner, AccessLevel.OWNER));
     }
 
     public boolean setNetworkName(@Nonnull String name) {
-        if (!name.equals(mName) && !EPNetUtil.isBadNetworkName(name)) {
-            mName = name;
+        if (!this.name.equals(name) && !EUNetUtils.isBadNetworkName(name)) {
+            this.name = name;
             return true;
         }
         return false;
@@ -144,7 +118,7 @@ public class EUNetworkBase {
     @Nonnull
     public AccessLevel getPlayerAccess(@Nonnull Player player) {
         final UUID uuid = player.getUUID();
-        if (mOwnerUUID.equals(uuid)) {
+        if (ownerUUID.equals(uuid)) {
             return AccessLevel.OWNER;
         }
         final NetworkMember member = getMemberByUUID(uuid);
@@ -165,56 +139,61 @@ public class EUNetworkBase {
     }
 
     /**
-     * 一个总和值，用于限制流向设备缓冲区的能量。仅限服务器
-     *
-     * @return buffer limit
-     */
-    public long getBufferLimiter() {
-        return 0;
-    }
-
-    /**
      * 更改目标的成员身份。首先检查有效。
      *
      * @param player     the player performing this action
      * @param targetUUID the UUID of the player to change
-     * @param type       the operation type, e.g. {@link EUNetConstants#MEMBERSHIP_SET_USER}
+     * @param type       the operation type, e.g. {@link EUNetValues#MEMBERSHIP_SET_USER}
      * @return a response code
      */
     public int changeMembership(Player player, UUID targetUUID, byte type) {
         throw new IllegalStateException();
     }
 
-    /**
-     * 返回此网络是否为有效网络。无效网络实际上是空网络，但我们使用单例来避免可空性检查。
-     *
-     * @return {@code true} if it is valid, {@code false} otherwise
-     * @see EUNetConstants#INVALID_NETWORK_ID
-     */
-    public boolean isValid() {
-        return false;
+    public long addEnergy(long energyToAdd) {
+        return 0L;
+    }
+
+    public long removeEnergy(long energyToRemove) {
+        return 0L;
+    }
+
+    public BigInteger addEnergy(BigInteger energyToAdd) {
+        return BigInteger.ZERO;
+    }
+
+    public BigInteger removeEnergy(BigInteger energyToRemove) {
+        return BigInteger.ZERO;
+    }
+
+    public BigInteger getStorage() {
+        return BigInteger.ZERO;
+    }
+
+    public void setStorage(BigInteger storage) {
     }
 
     public void writeCustomTag(@Nonnull CompoundTag tag, byte type) {
-        if (type == EUNetConstants.NBT_NET_BASIC || type == EUNetConstants.NBT_SAVE_ALL) {
-            tag.putInt(EUNetConstants.NETWORK_ID, mID);
-            tag.putString(NETWORK_NAME, mName);
-            tag.putUUID(OWNER_UUID, mOwnerUUID);
+        if (type == EUNetValues.NBT_NET_BASIC || type == EUNetValues.NBT_SAVE_ALL) {
+            tag.putInt(EUNetValues.NETWORK_ID, id);
+            tag.putString(NETWORK_NAME, name);
+            tag.putUUID(OWNER_UUID, ownerUUID);
+            tag.putString(STORAGE, getStorage().toString());
         }
-        if (type == EUNetConstants.NBT_SAVE_ALL) {
+        if (type == EUNetValues.NBT_SAVE_ALL) {
             Collection<NetworkMember> members = getAllMembers();
             if (!members.isEmpty()) {
                 ListTag list = new ListTag();
-                for (NetworkMember m : members) {
+                for (NetworkMember member : members) {
                     CompoundTag subTag = new CompoundTag();
-                    m.writeNBT(subTag);
+                    member.writeNBT(subTag);
                     list.add(subTag);
                 }
                 tag.put(MEMBERS, list);
             }
 
         }
-        if (type == EUNetConstants.NBT_NET_MEMBERS) {
+        if (type == EUNetValues.NBT_NET_MEMBERS) {
             Collection<NetworkMember> members = getAllMembers();
             ListTag list = new ListTag();
             if (!members.isEmpty()) {
@@ -236,18 +215,19 @@ public class EUNetworkBase {
             tag.put(MEMBERS, list);
         }
 
-        if (type == EUNetConstants.NBT_NET_STATISTICS) {
+        if (type == EUNetValues.NBT_NET_STATISTICS) {
             mStatistics.writeNBT(tag);
         }
     }
 
     public void readCustomTag(@Nonnull CompoundTag tag, byte type) {
-        if (type == EUNetConstants.NBT_NET_BASIC || type == EUNetConstants.NBT_SAVE_ALL) {
-            mID = tag.getInt(EUNetConstants.NETWORK_ID);
-            mName = tag.getString(NETWORK_NAME);
-            mOwnerUUID = tag.getUUID(OWNER_UUID);
+        if (type == EUNetValues.NBT_NET_BASIC || type == EUNetValues.NBT_SAVE_ALL) {
+            this.id = tag.getInt(EUNetValues.NETWORK_ID);
+            this.name = tag.getString(NETWORK_NAME);
+            this.ownerUUID = tag.getUUID(OWNER_UUID);
+            setStorage(new BigInteger(tag.getString(STORAGE)));
         }
-        if (type == EUNetConstants.NBT_SAVE_ALL) {
+        if (type == EUNetValues.NBT_SAVE_ALL) {
             ListTag list = tag.getList(MEMBERS, Tag.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++) {
                 CompoundTag c = list.getCompound(i);
@@ -255,7 +235,7 @@ public class EUNetworkBase {
                 mMemberMap.put(m.getPlayerUUID(), m);
             }
         }
-        if (type == EUNetConstants.NBT_NET_MEMBERS) {
+        if (type == EUNetValues.NBT_NET_MEMBERS) {
             mMemberMap.clear();
             ListTag list = tag.getList(MEMBERS, Tag.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++) {
@@ -265,7 +245,7 @@ public class EUNetworkBase {
             }
         }
 
-        if (type == EUNetConstants.NBT_NET_STATISTICS) {
+        if (type == EUNetValues.NBT_NET_STATISTICS) {
             mStatistics.readNBT(tag);
         }
     }
@@ -273,9 +253,9 @@ public class EUNetworkBase {
     @Override
     public String toString() {
         return "FluxNetwork{" +
-                "id=" + mID +
-                ", name='" + mName + '\'' +
-                ", owner=" + mOwnerUUID +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", owner=" + ownerUUID +
                 '}';
     }
 }

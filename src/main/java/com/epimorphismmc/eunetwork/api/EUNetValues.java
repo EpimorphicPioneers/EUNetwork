@@ -1,30 +1,12 @@
 package com.epimorphismmc.eunetwork.api;
 
-public class EUNetConstants {
-    public static final int INVALID_NETWORK_ID = -1;
-    public static final int INVALID_NETWORK_COLOR = 0xb2b2b2;
+public class EUNetValues {
 
     /**
      * NBT access type, save data to disk (R/W server only).
      */
     public static final byte NBT_SAVE_ALL = 1;
-    /**
-     * NBT access type, tile update or read stack.
-     * <ul>
-     * <li>UPDATE: S->C (Write - server, Read - client)</li>
-     * <li>DROP: (Write - server, Read - client/server)</li>
-     * <li>SETTINGS: C->S (Write - client, Read - server)</li>
-     * </ul>
-     */
-    public static final byte
-            NBT_TILE_UPDATE = 11,
-            NBT_TILE_DROP = 15,
-            NBT_TILE_SETTINGS = 19;
-    /**
-     * NBT access type, update phantom flux device.
-     * S->C (Write - server, read - client).
-     */
-    public static final byte NBT_PHANTOM_UPDATE = 20;
+
     /**
      * NBT access type, network data-sync or operation.
      * Write - server, Read - client/server.
@@ -77,22 +59,8 @@ public class EUNetConstants {
 
     // Network members editing type
     public static final byte MEMBERSHIP_SET_USER = 1;
-    public static final byte MEMBERSHIP_SET_ADMIN = 2;
-    public static final byte MEMBERSHIP_CANCEL_MEMBERSHIP = 3;
-    public static final byte MEMBERSHIP_TRANSFER_OWNERSHIP = 4;
-
-    /**
-     * Device buffer message type, S2C negative
-     */
-    public static final byte DEVICE_S2C_GUI_SYNC = -1;
-    public static final byte DEVICE_S2C_STORAGE_ENERGY = -2;
-
-    // NBT sub-tag key
-    public static final String TAG_FLUX_DATA = "FluxData";
-    public static final String TAG_FLUX_CONFIG = "FluxConfig";
-
-    // NBT root key
-    public static final String FLUX_COLOR = "FluxColor";
+    public static final byte MEMBERSHIP_CANCEL_MEMBERSHIP = 2;
+    public static final byte MEMBERSHIP_TRANSFER_OWNERSHIP = 3;
 
     // NBT key
     public static final String NETWORK_ID = "networkID";
@@ -105,10 +73,6 @@ public class EUNetConstants {
 
     public static final String CLIENT_COLOR = "clientColor";
     public static final String FLAGS = "flags";
-
-    public static final String DEVICE_TYPE = "deviceType";
-    public static final String FORCED_LOADING = "forcedLoading";
-    public static final String CHUNK_LOADED = "chunkLoaded";
 
     public static final String BUFFER = "buffer";
     public static final String ENERGY = "energy"; // equals to buffer, but with different display text
