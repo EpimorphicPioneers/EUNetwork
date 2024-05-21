@@ -54,6 +54,16 @@ public class ServerEUNetwork extends EUNetworkBase {
     }
 
     @Override
+    public BigInteger getStorage() {
+        return storage.getStorage();
+    }
+
+    @Override
+    public void setStorage(BigInteger storage) {
+        this.storage.setStorage(storage);
+    }
+
+    @Override
     public int changeMembership(@Nonnull Player player, @Nonnull UUID targetUUID, byte type) {
         final AccessLevel access = getPlayerAccess(player);
         boolean editPermission = access.canEdit();

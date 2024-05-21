@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
+import com.lowdragmc.lowdraglib.syncdata.annotation.RequireRerender;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,7 @@ public class NotifiableWirelessContainer extends NotifiableEnergyContainer {
 
     public static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(NotifiableWirelessContainer.class, NotifiableEnergyContainer.MANAGED_FIELD_HOLDER);
 
-    @Persisted @DescSynced
+    @Persisted @DescSynced @RequireRerender
     @Getter @Setter
     private int networkID = -1;
 
@@ -36,8 +37,10 @@ public class NotifiableWirelessContainer extends NotifiableEnergyContainer {
     }
 
     @Override
-    public void serverTick() {
+    public void updateTick() {
+        super.updateTick();
         if (networkID < 0) return;
+        if (getMachine().getLevel().isClientSide()) return;
         if (getMachine().getOffsetTimer() % 20L != 0L) return;
         if (!getEUNetworkMachine().canAccessNetwork()) return;
 
@@ -46,7 +49,7 @@ public class NotifiableWirelessContainer extends NotifiableEnergyContainer {
             if (network.canPlayerAccess(getEUNetworkMachine().getOwnerUUID())) {
                 if (this.getInputVoltage() == 0) {
                     if (this.getEnergyStored() > 0) {
-                        this.removeEnergy(addEnergy(this.getEnergyStored()));
+                        this.removeEnergy(network.addEnergy(this.getEnergyStored()));
                     }
                 } else {
                     long consumeEnergy = this.getEnergyCapacity() - this.getEnergyStored();
@@ -56,6 +59,16 @@ public class NotifiableWirelessContainer extends NotifiableEnergyContainer {
                 this.networkID = -1;
             }
         }
+    }
+
+    @Override
+    public void checkOutputSubscription() {
+        // We don't need to interact with wires
+    }
+
+    @Override
+    public void serverTick() {
+        // We don't need to interact with wires
     }
 
     @Override
