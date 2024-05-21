@@ -117,7 +117,11 @@ public class EUNetworkBase {
      */
     @Nonnull
     public AccessLevel getPlayerAccess(@Nonnull Player player) {
-        final UUID uuid = player.getUUID();
+        return getPlayerAccess(player.getUUID());
+    }
+
+    @Nonnull
+    public AccessLevel getPlayerAccess(@Nonnull UUID uuid) {
         if (ownerUUID.equals(uuid)) {
             return AccessLevel.OWNER;
         }
@@ -136,6 +140,10 @@ public class EUNetworkBase {
      */
     public final boolean canPlayerAccess(@Nonnull Player player) {
         return getPlayerAccess(player).canUse();
+    }
+
+    public final boolean canPlayerAccess(@Nonnull UUID uuid) {
+        return getPlayerAccess(uuid).canUse();
     }
 
     /**

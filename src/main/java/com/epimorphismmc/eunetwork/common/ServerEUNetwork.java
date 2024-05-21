@@ -31,21 +31,25 @@ public class ServerEUNetwork extends EUNetworkBase {
 
     @Override
     public long addEnergy(long energyToAdd) {
+        EUNetworkData.markDirty();
         return storage.add(energyToAdd);
     }
 
     @Override
     public long removeEnergy(long energyToRemove) {
+        EUNetworkData.markDirty();
         return storage.remove(energyToRemove);
     }
 
     @Override
     public BigInteger addEnergy(BigInteger energyToAdd) {
+        EUNetworkData.markDirty();
         return storage.add(energyToAdd);
     }
 
     @Override
     public BigInteger removeEnergy(BigInteger energyToRemove) {
+        EUNetworkData.markDirty();
         return storage.remove(energyToRemove);
     }
 

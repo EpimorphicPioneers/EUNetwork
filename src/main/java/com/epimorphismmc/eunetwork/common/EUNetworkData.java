@@ -68,6 +68,10 @@ public class EUNetworkData extends MOSavedData {
         }
     }
 
+    public static void markDirty() {
+        getInstance().setDirty(true);
+    }
+
     @Nullable
     public static EUNetworkBase getNetwork(int id) {
         return getInstance().networks.get(id);

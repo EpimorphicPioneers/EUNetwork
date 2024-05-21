@@ -58,7 +58,7 @@ public class EUNetwork extends MOMod<CommonProxy> {
     }
 
     @Override
-    public void registerMessages(INetworking network) {
+    public void registerPackets(INetworking network) {
         network.registerS2C(SPacketEUNetworkPayload.class);
         network.registerC2S(CPacketEUNetworkPayload.class);
     }
