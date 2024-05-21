@@ -1,6 +1,6 @@
 package com.epimorphismmc.eunetwork.network.eunetwork;
 
-import com.epimorphismmc.eunetwork.EUNetwork;
+import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.api.EUNetValues;
 import com.epimorphismmc.eunetwork.common.EUNetworkBase;
 import com.epimorphismmc.eunetwork.common.EUNetworkData;
@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.UUID;
 
-import static com.epimorphismmc.eunetwork.EUNetwork.network;
+import static com.epimorphismmc.eunetwork.EUNet.network;
 import static com.epimorphismmc.eunetwork.utils.MessageUtils.getBuffer;
 
 public class MessageHandler {
@@ -112,9 +112,9 @@ public class MessageHandler {
     private static void kick(ServerPlayer p, RuntimeException e) {
         if (p != null && p.server.isDedicatedServer()) {
             p.connection.disconnect(Component.translatable("multiplayer.disconnect.invalid_packet"));
-            EUNetwork.logger().info("Received invalid packet from player {}", p.getGameProfile().getName(), e);
+            EUNet.logger().info("Received invalid packet from player {}", p.getGameProfile().getName(), e);
         } else {
-            EUNetwork.logger().info("Received invalid packet", e);
+            EUNet.logger().info("Received invalid packet", e);
         }
     }
 

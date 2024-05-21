@@ -1,5 +1,6 @@
 package com.epimorphismmc.eunetwork.api.machine.trait;
 
+import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.api.machine.feature.IEUNetworkMachine;
 import com.epimorphismmc.eunetwork.common.EUNetworkData;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
@@ -53,7 +54,9 @@ public class NotifiableWirelessContainer extends NotifiableEnergyContainer {
                     }
                 } else {
                     long consumeEnergy = this.getEnergyCapacity() - this.getEnergyStored();
-                    this.addEnergy(network.removeEnergy(consumeEnergy));
+                    if (consumeEnergy > 0) {
+                        this.addEnergy(network.removeEnergy(consumeEnergy));
+                    }
                 }
             } else {
                 this.networkID = -1;

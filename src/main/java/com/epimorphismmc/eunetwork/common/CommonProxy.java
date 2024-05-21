@@ -1,6 +1,6 @@
 package com.epimorphismmc.eunetwork.common;
 
-import com.epimorphismmc.eunetwork.EUNetwork;
+import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.common.data.EUNetMachines;
 import com.epimorphismmc.monomorphism.proxy.base.ICommonProxyBase;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 public class CommonProxy implements ICommonProxyBase {
 
     public CommonProxy() {
-        EUNetwork.logger().info("EUNetwork's Initialization Completed!");
+        EUNet.logger().info("EUNetwork's Initialization Completed!");
     }
 
     @Override

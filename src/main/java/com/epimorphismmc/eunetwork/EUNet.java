@@ -15,14 +15,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
 
-@Mod(EUNetwork.MODID)
-public class EUNetwork extends MOMod<CommonProxy> {
+@Mod(EUNet.MODID)
+public class EUNet extends MOMod<CommonProxy> {
     public static final String MODID = "eunetwork";
     public static final String NAME = "EUNetwork";
 
-    public static EUNetwork instance;
+    public static EUNet instance;
 
-    public EUNetwork() {
+    public EUNet() {
         super();
     }
 

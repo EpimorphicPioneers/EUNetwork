@@ -1,12 +1,12 @@
 package com.epimorphismmc.eunetwork.config;
 
-import com.epimorphismmc.eunetwork.EUNetwork;
+import com.epimorphismmc.eunetwork.EUNet;
 import dev.toma.configuration.Configuration;
 import dev.toma.configuration.config.Config;
 import dev.toma.configuration.config.Configurable;
 import dev.toma.configuration.config.format.ConfigFormats;
 
-@Config(id = EUNetwork.MODID)
+@Config(id = EUNet.MODID)
 public class EUNetConfigHolder {
 
     public static EUNetConfigHolder INSTANCE;

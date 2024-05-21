@@ -7,7 +7,7 @@ import com.gregtechceu.gtceu.api.addon.GTAddon;
 @GTAddon
 public class EUNetGTAddon extends MOGTAddon {
     public EUNetGTAddon() {
-        super(EUNetwork.MODID);
+        super(EUNet.MODID);
     }
 
     @Override

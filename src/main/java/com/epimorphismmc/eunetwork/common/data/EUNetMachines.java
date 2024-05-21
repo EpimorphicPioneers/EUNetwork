@@ -1,6 +1,6 @@
 package com.epimorphismmc.eunetwork.common.data;
 
-import com.epimorphismmc.eunetwork.EUNetwork;
+import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.common.machine.multiblock.part.WirelessEnergyHatchPartMachine;
 import com.epimorphismmc.monomorphism.client.renderer.machine.CustomWorkableMachineRenderer;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import java.util.Locale;
 import java.util.function.BiFunction;
 
-import static com.epimorphismmc.eunetwork.EUNetwork.registrate;
+import static com.epimorphismmc.eunetwork.EUNet.registrate;
 import static com.gregtechceu.gtceu.api.GTValues.*;
 import static com.gregtechceu.gtceu.common.data.GTMachines.ELECTRIC_TIERS;
 
@@ -29,7 +29,7 @@ public class EUNetMachines {
                     .rotationState(RotationState.ALL)
                     .abilities(PartAbility.INPUT_ENERGY)
                     .renderer(() -> new CustomWorkableMachineRenderer(tier,
-                            EUNetwork.id("block/multiblock/part/wireless_energy_hatch"), WirelessEnergyHatchPartMachine::isActive))
+                            EUNet.id("block/multiblock/part/wireless_energy_hatch"), WirelessEnergyHatchPartMachine::isActive))
                     .tooltips(
                             Component.translatable("block.eunetwork.wireless_energy_input_hatch.desc.0"),
                             Component.translatable("block.eunetwork.wireless_energy_input_hatch.desc.1"),
@@ -45,7 +45,7 @@ public class EUNetMachines {
                     .rotationState(RotationState.ALL)
                     .abilities(PartAbility.OUTPUT_ENERGY)
                     .renderer(() -> new CustomWorkableMachineRenderer(tier,
-                            EUNetwork.id("block/multiblock/part/wireless_energy_hatch"), WirelessEnergyHatchPartMachine::isActive))
+                            EUNet.id("block/multiblock/part/wireless_energy_hatch"), WirelessEnergyHatchPartMachine::isActive))
                     .tooltips(
                             Component.translatable("block.eunetwork.wireless_energy_output_hatch.desc.0"),
                             Component.translatable("block.eunetwork.wireless_energy_output_hatch.desc.1"),

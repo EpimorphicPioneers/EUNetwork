@@ -17,7 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.Collection;
 import java.util.UUID;
 
-import static com.epimorphismmc.eunetwork.EUNetwork.network;
+import static com.epimorphismmc.eunetwork.EUNet.network;
 import static com.epimorphismmc.eunetwork.network.eunetwork.MessageHandler.*;
 import static com.epimorphismmc.eunetwork.utils.MessageUtils.getBuffer;
 

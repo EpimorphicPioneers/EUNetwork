@@ -1,6 +1,6 @@
 package com.epimorphismmc.eunetwork.client;
 
-import com.epimorphismmc.eunetwork.EUNetwork;
+import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.common.ClientEUNetwork;
 import com.epimorphismmc.eunetwork.common.EUNetworkBase;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
@@ -37,7 +37,7 @@ public final class ClientCache {
         sNetworks.clear();
         sNetworks.trim(); // rehash
         sRecentPasswords.clear(); // preserved memory, no need to rehash
-        EUNetwork.logger().info("Released client Flux Networks cache");
+        EUNet.logger().info("Released client Flux Networks cache");
     }
 
     /**

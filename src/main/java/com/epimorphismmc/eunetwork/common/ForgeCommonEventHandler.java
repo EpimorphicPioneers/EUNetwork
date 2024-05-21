@@ -1,6 +1,6 @@
 package com.epimorphismmc.eunetwork.common;
 
-import com.epimorphismmc.eunetwork.EUNetwork;
+import com.epimorphismmc.eunetwork.EUNet;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 
-@Mod.EventBusSubscriber(modid = EUNetwork.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = EUNet.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeCommonEventHandler {
 
     @SubscribeEvent

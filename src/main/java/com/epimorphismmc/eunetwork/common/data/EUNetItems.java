@@ -4,7 +4,7 @@ import com.epimorphismmc.eunetwork.common.item.behaviors.NetworkTerminalBehavior
 import com.gregtechceu.gtceu.api.item.ComponentItem;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
-import static com.epimorphismmc.eunetwork.EUNetwork.registrate;
+import static com.epimorphismmc.eunetwork.EUNet.registrate;
 import static com.gregtechceu.gtceu.common.data.GTItems.attach;
 
 public class EUNetItems {

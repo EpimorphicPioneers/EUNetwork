@@ -1,6 +1,6 @@
 package com.epimorphismmc.eunetwork.common;
 
-import com.epimorphismmc.eunetwork.EUNetwork;
+import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.api.EUNetValues;
 import com.epimorphismmc.eunetwork.config.EUNetConfigHolder;
 import com.epimorphismmc.eunetwork.network.eunetwork.MessageHandler;
@@ -23,13 +23,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.UUID;
 
-import static com.epimorphismmc.eunetwork.EUNetwork.network;
+import static com.epimorphismmc.eunetwork.EUNet.network;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class EUNetworkData extends MOSavedData {
 
-    public static final String NETWORK_DATA = EUNetwork.MODID + "data";
+    public static final String NETWORK_DATA = EUNet.MODID + "data";
 
     public static volatile EUNetworkData data;
 
@@ -55,7 +55,7 @@ public class EUNetworkData extends MOSavedData {
             ServerLevel level = ServerLifecycleHooks.getCurrentServer().overworld();
             EUNetworkData.data = level.getDataStorage()
                     .computeIfAbsent(EUNetworkData::new, EUNetworkData::new, NETWORK_DATA);
-            EUNetwork.logger().debug("EUNetworkData has been successfully loaded");
+            EUNet.logger().debug("EUNetworkData has been successfully loaded");
         }
         return EUNetworkData.data;
     }
@@ -64,7 +64,7 @@ public class EUNetworkData extends MOSavedData {
     public static void release() {
         if (data != null) {
             data = null;
-            EUNetwork.logger().debug("EUNetworkData has been unloaded");
+            EUNet.logger().debug("EUNetworkData has been unloaded");
         }
     }
 
