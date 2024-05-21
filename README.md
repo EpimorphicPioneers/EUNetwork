@@ -1,3 +1,3 @@
-# Modpack Template Mod
+# EUNetwork
 
-A Template Mod for my modpack, with [GTM](https://github.com/GregTechCEu/GregTech-Modern)
+Wireless energy network for GTM.
