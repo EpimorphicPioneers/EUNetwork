@@ -17,11 +17,11 @@ public class ForgeCommonEventHandler {
         EUNetworkData.release();
     }
 
-    @SubscribeEvent
-    public static void onServerTick(@Nonnull TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            EUNetworkData.getAllNetworks().forEach(EUNetworkBase::onEndServerTick);
-        }
-    }
+//    @SubscribeEvent
+//    public static void onServerTick(@Nonnull TickEvent.ServerTickEvent event) {
+//        if (event.phase == TickEvent.Phase.END) {
+//            EUNetworkData.getAllNetworks().forEach(EUNetworkBase::onEndServerTick);
+//        }
+//    }
 
 }
