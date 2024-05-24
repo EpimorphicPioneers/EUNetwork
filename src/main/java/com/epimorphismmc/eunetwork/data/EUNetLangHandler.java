@@ -46,6 +46,12 @@ public class EUNetLangHandler {
         addWirelessEnergyHatchName(provider, 65536, false, MULTI_HATCH_TIERS);
         addWirelessEnergyHatchName(provider, 262144, false, MULTI_HATCH_TIERS);
         addWirelessEnergyHatchName(provider, 1048576, false, MULTI_HATCH_TIERS);
+
+        provider.add("message.eunetwork.network_id", "Network ID: %d", "网络 ID：%d");
+        provider.add("message.eunetwork.network_storage", "Storage: %s EU", "已存储：%s EU");
+        provider.add("message.eunetwork.invalid_number", "Invalid number: %s", "无效的数字：%s");
+        provider.add("message.eunetwork.invalid_network", "Invalid Network: %d", "无效的网络：%d");
+        provider.add("message.eunetwork.add_successed", "Network %d Energy added successfully, added: %s", "网络 %d 能量添加成功，已添加：%s");
     }
 
     private static void addWirelessEnergyHatchName(MOLangProvider provider, int amperage, boolean isInput, int... tiers) {

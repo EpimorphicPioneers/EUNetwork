@@ -247,5 +247,10 @@
   "block.eunetwork.zpm_wireless_energy_output_hatch_4a": "ɥɔʇɐH oɯɐuʎᗡ ssǝןǝɹıM Ɐㄣɹ§ WԀZɔ§",
   "block.eunetwork.zpm_wireless_energy_output_hatch_64a": "ɥɔʇɐH oɯɐuʎᗡ ssǝןǝɹıM Ɐㄣ9ɹ§ WԀZɔ§",
   "block.eunetwork.zpm_wireless_energy_output_hatch_65536a": "ɥɔʇɐH oɯɐuʎᗡ ssǝןǝɹıM Ɐ9Ɛϛϛ9ɹ§ WԀZɔ§",
-  "item.eunetwork.eunetwork_terminal": "ןɐuıɯɹǝ⟘ ʞɹoʍʇǝN∩Ǝ"
+  "item.eunetwork.eunetwork_terminal": "ןɐuıɯɹǝ⟘ ʞɹoʍʇǝN∩Ǝ",
+  "message.eunetwork.add_successed": "%s :pǝppɐ 'ʎןןnɟssǝɔɔns pǝppɐ ʎbɹǝuƎ %d ʞɹoʍʇǝN",
+  "message.eunetwork.invalid_network": "%d :ʞɹoʍʇǝN pıןɐʌuI",
+  "message.eunetwork.invalid_number": "%s :ɹǝqɯnu pıןɐʌuI",
+  "message.eunetwork.network_id": "%d :ᗡI ʞɹoʍʇǝN",
+  "message.eunetwork.network_storage": "∩Ǝ %s :ǝbɐɹoʇS"
 }

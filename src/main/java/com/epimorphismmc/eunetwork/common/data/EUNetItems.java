@@ -11,9 +11,10 @@ import static com.gregtechceu.gtceu.common.data.GTItems.attach;
 public class EUNetItems {
 
     public final static ItemEntry<ComponentItem> EUNETWORK_TERMINAL = registrate().item("eunetwork_terminal", ComponentItem::create)
-            .tab(GTCreativeModeTabs.ITEM.getKey())
-            .onRegister(attach(new NetworkTerminalBehavior()))
-            .register();
+        .properties(p -> p.stacksTo(1))
+        .tab(GTCreativeModeTabs.ITEM.getKey())
+        .onRegister(attach(new NetworkTerminalBehavior()))
+        .register();
 
     public static void init() {
 
