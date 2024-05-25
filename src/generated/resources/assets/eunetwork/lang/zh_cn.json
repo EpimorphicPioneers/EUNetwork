@@ -247,5 +247,10 @@
   "block.eunetwork.zpm_wireless_energy_output_hatch_4a": "4安§cZPM§r无线动力仓",
   "block.eunetwork.zpm_wireless_energy_output_hatch_64a": "64安§cZPM§r无线动力仓",
   "block.eunetwork.zpm_wireless_energy_output_hatch_65536a": "65536安§cZPM§r无线动力仓",
-  "item.eunetwork.eunetwork_terminal": "无线电网终端"
+  "item.eunetwork.eunetwork_terminal": "无线电网终端",
+  "message.eunetwork.add_successed": "网络 %d 能量添加成功，已添加：%s",
+  "message.eunetwork.invalid_network": "无效的网络：%d",
+  "message.eunetwork.invalid_number": "无效的数字：%s",
+  "message.eunetwork.network_id": "网络 ID：%d",
+  "message.eunetwork.network_storage": "已存储：%s EU"
 }

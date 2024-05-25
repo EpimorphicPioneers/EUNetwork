@@ -1,12 +1,11 @@
 package com.epimorphismmc.eunetwork.common;
 
 import com.epimorphismmc.eunetwork.EUNet;
-import net.minecraftforge.event.TickEvent;
+import com.epimorphismmc.eunetwork.common.data.EUNetCommands;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
-import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber(modid = EUNet.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeCommonEventHandler {
@@ -15,6 +14,11 @@ public class ForgeCommonEventHandler {
     public static void onServerStopped(ServerStoppedEvent event) {
         // mainly used to reload data while changing single-player saves, unnecessary on dedicated server
         EUNetworkData.release();
+    }
+
+    @SubscribeEvent
+    public static void onCommandRegister(RegisterCommandsEvent event) {
+        EUNetCommands.init(event.getDispatcher());
     }
 
 //    @SubscribeEvent

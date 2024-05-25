@@ -247,5 +247,10 @@
   "block.eunetwork.zpm_wireless_energy_output_hatch_4a": "§cZPM §r4A Wireless Dynamo Hatch",
   "block.eunetwork.zpm_wireless_energy_output_hatch_64a": "§cZPM §r64A Wireless Dynamo Hatch",
   "block.eunetwork.zpm_wireless_energy_output_hatch_65536a": "§cZPM §r65536A Wireless Dynamo Hatch",
-  "item.eunetwork.eunetwork_terminal": "EUNetwork Terminal"
+  "item.eunetwork.eunetwork_terminal": "EUNetwork Terminal",
+  "message.eunetwork.add_successed": "Network %d Energy added successfully, added: %s",
+  "message.eunetwork.invalid_network": "Invalid Network: %d",
+  "message.eunetwork.invalid_number": "Invalid number: %s",
+  "message.eunetwork.network_id": "Network ID: %d",
+  "message.eunetwork.network_storage": "Storage: %s EU"
 }
