@@ -8,17 +8,23 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.math.BigInteger;
 import java.text.NumberFormat;
+import java.util.function.Predicate;
 
 public class EUNetCommands {
     private static final NumberFormat nf = NumberFormat.getInstance();
 
+    private static final Style NUMBER = Style.EMPTY.withColor(0xffde7d);
+
+    private static final Predicate<CommandSourceStack> HAS_PERMISSION = s -> s.hasPermission(2);
     private static final RequiredArgumentBuilder<CommandSourceStack, Integer> NETWORK_ARGUMENT =
         Commands.argument("id", IntegerArgumentType.integer())
             .suggests((ctx, builder) -> {
@@ -26,62 +32,63 @@ public class EUNetCommands {
                 return builder.buildFuture();
             });
 
+    private static void sendStorage(CommandContext<CommandSourceStack> ctx, EUNetworkBase network) {
+        ctx.getSource().sendSuccess(
+            () -> Component.translatable("message.eunetwork.network_id", Component.literal("" + network.getId()).withStyle(NUMBER)),
+            true
+        );
+        ctx.getSource().sendSuccess(
+            () -> Component.translatable("message.eunetwork.network_storage", Component.literal(nf.format(network.getStorage())).withStyle(NUMBER)),
+            true
+        );
+    }
+
+    private static void sendNetworkInfo(CommandContext<CommandSourceStack> ctx, EUNetworkBase network) {
+
+    }
+
     private static final LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(EUNet.MODID)
-        .requires(src -> src.hasPermission(2))
         .then(Commands.literal("get")
-            .executes(src -> {
-                ServerPlayer player = src.getSource().getPlayerOrException();
+            .executes(ctx -> {
+                ServerPlayer player = ctx.getSource().getPlayerOrException();
                 for (EUNetworkBase network : EUNetworkData.getAllNetworks()) {
                     if (network.canPlayerAccess(player)) {
-                        src.getSource().sendSuccess(
-                            () -> Component.translatable("message.eunetwork.network_id", network.getId()),
-                            true
-                        );
-                        src.getSource().sendSuccess(
-                            () -> Component.translatable("message.eunetwork.network_storage", nf.format(network.getStorage())),
-                            true
-                        );
+                        sendStorage(ctx, network);
                     }
                 }
                 return 1;
             })
             .then(NETWORK_ARGUMENT
-                .executes(src -> {
-                    int id = IntegerArgumentType.getInteger(src, "id");
+                .executes(ctx -> {
+                    int id = IntegerArgumentType.getInteger(ctx, "id");
                     EUNetworkBase network = EUNetworkData.getNetwork(id);
                     if (network == null) {
-                        src.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
+                        ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                     } else {
-                        src.getSource().sendSuccess(
-                            () -> Component.translatable("message.eunetwork.network_id", network.getId()),
-                            true
-                        );
-                        src.getSource().sendSuccess(
-                            () -> Component.translatable("message.eunetwork.network_storage", nf.format(network.getStorage())),
-                            true
-                        );
+                        sendStorage(ctx, network);
                     }
                     return 1;
                 })))
         .then(Commands.literal("add")
+            .requires(HAS_PERMISSION)
             .then(NETWORK_ARGUMENT
                 .then(Commands.argument("value", StringArgumentType.string())
-                    .executes(src -> {
-                        int id = IntegerArgumentType.getInteger(src, "id");
-                        String valueString = StringArgumentType.getString(src, "value");
+                    .executes(ctx -> {
+                        int id = IntegerArgumentType.getInteger(ctx, "id");
+                        String valueString = StringArgumentType.getString(ctx, "value");
                         BigInteger value;
                         try {
                             value = new BigInteger(valueString);
                         } catch (NumberFormatException e) {
-                            src.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_number", valueString));
+                            ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_number", valueString));
                             return 0;
                         }
                         EUNetworkBase network = EUNetworkData.getNetwork(id);
                         if (network == null) {
-                            src.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
+                            ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                         } else {
                             BigInteger inserted = network.addEnergy(value);
-                            src.getSource().sendSuccess(
+                            ctx.getSource().sendSuccess(
                                 () -> Component.translatable("message.eunetwork.add_successed", id, nf.format(inserted)),
                                 true
                             );
