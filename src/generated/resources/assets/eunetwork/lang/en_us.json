@@ -247,10 +247,20 @@
   "block.eunetwork.zpm_wireless_energy_output_hatch_4a": "§cZPM §r4A Wireless Dynamo Hatch",
   "block.eunetwork.zpm_wireless_energy_output_hatch_64a": "§cZPM §r64A Wireless Dynamo Hatch",
   "block.eunetwork.zpm_wireless_energy_output_hatch_65536a": "§cZPM §r65536A Wireless Dynamo Hatch",
+  "eunetwork.block": "Blocked",
+  "eunetwork.owner": "Owner",
+  "eunetwork.user": "User",
   "item.eunetwork.eunetwork_terminal": "EUNetwork Terminal",
   "message.eunetwork.add_successed": "Network %d Energy added successfully, added: %s",
+  "message.eunetwork.all_members": "All Members",
   "message.eunetwork.invalid_network": "Invalid Network: %d",
   "message.eunetwork.invalid_number": "Invalid number: %s",
+  "message.eunetwork.invalid_user": "Invalid User",
+  "message.eunetwork.invite_successes": "Invite %s Successes",
   "message.eunetwork.network_id": "Network ID: %d",
-  "message.eunetwork.network_storage": "Storage: %s EU"
+  "message.eunetwork.network_storage": "Storage: %s EU",
+  "message.eunetwork.not_network_admin": "Not Network Admin",
+  "message.eunetwork.not_network_owner": "Not Network Owner",
+  "message.eunetwork.not_space": "Not Enough Space",
+  "message.eunetwork.unknow_response": "UnKnow response: %d"
 }
