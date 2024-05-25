@@ -57,4 +57,7 @@ dependencies {
 
     // Monomorphism
     modImplementation(files("lib/monomorphism-1.20.1-1.0.9.jar"))
+
+    // FTBTeam
+    modImplementation(forge.ftbTeam)
 }
