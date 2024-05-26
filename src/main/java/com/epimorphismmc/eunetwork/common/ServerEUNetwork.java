@@ -1,16 +1,17 @@
 package com.epimorphismmc.eunetwork.common;
 
-import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.api.*;
+import com.epimorphismmc.eunetwork.common.data.EUNetworkTypes;
 import com.epimorphismmc.monomorphism.utility.BigIntStorage;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
@@ -21,8 +22,14 @@ import java.util.UUID;
 public class ServerEUNetwork extends EUNetwork {
 
     public static final IEUNetworkFactory<ServerEUNetwork> FACTORY = new IEUNetworkFactory<>() {
+
         @Override
-        public ServerEUNetwork createEUNetwork(CompoundTag tag, byte type) {
+        public ServerEUNetwork createEUNetwork(int id, String name, @NotNull Player owner) {
+            return new ServerEUNetwork(id, name, owner);
+        }
+
+        @Override
+        public ServerEUNetwork deserialize(CompoundTag tag, byte type) {
             var network = new ServerEUNetwork();
             network.deserializeNBT(tag, type);
             return network;
@@ -30,7 +37,7 @@ public class ServerEUNetwork extends EUNetwork {
 
         @Override
         public ResourceLocation getType() {
-            return EUNet.id("server");
+            return EUNetworkTypes.BUILT;
         }
     };
 
@@ -163,7 +170,7 @@ public class ServerEUNetwork extends EUNetwork {
     }
 
     @Override
-    public void serializeNBT(@Nonnull CompoundTag tag, byte type) {
+    public void serialize(@Nonnull CompoundTag tag, byte type) {
         if (type == EUNetValues.NBT_NET_BASIC || type == EUNetValues.NBT_SAVE_ALL) {
             tag.putInt(EUNetValues.NETWORK_ID, id);
             tag.putString(NETWORK_NAME, name);
@@ -208,6 +215,11 @@ public class ServerEUNetwork extends EUNetwork {
         if (type == EUNetValues.NBT_NET_STATISTICS) {
             mStatistics.writeNBT(tag);
         }
+    }
+
+    @Override
+    public FriendlyByteBuf toByteBuf() {
+        return null;
     }
 
     @Override

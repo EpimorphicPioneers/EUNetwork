@@ -2,6 +2,7 @@ package com.epimorphismmc.eunetwork.common.item.behaviors;
 
 import com.epimorphismmc.eunetwork.api.machine.feature.IEUNetworkMachine;
 import com.epimorphismmc.eunetwork.common.EUNetworkManager;
+import com.epimorphismmc.eunetwork.common.data.EUNetworkTypes;
 import com.gregtechceu.gtceu.api.item.component.IInteractionItem;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import net.minecraft.core.BlockPos;
@@ -44,7 +45,7 @@ public class NetworkTerminalBehavior implements IInteractionItem {
                                 return InteractionResult.CONSUME;
                             }
                         }
-                        var network = EUNetworkManager.getInstance().createNetwork(context.getPlayer(), "Test");
+                        var network = EUNetworkManager.getInstance().createNetwork(context.getPlayer(), "Test", EUNetworkTypes.BUILT);
                         if (network != null) {
                             networkMachine.setEUNetwork(context.getPlayer(), network);
                             tag.putInt("network", network.getId());

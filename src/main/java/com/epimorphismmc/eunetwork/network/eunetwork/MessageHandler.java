@@ -3,8 +3,8 @@ package com.epimorphismmc.eunetwork.network.eunetwork;
 import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.api.EUNetValues;
 import com.epimorphismmc.eunetwork.common.EUNetwork;
-import com.epimorphismmc.eunetwork.common.EUNetworkBase;
 import com.epimorphismmc.eunetwork.common.EUNetworkManager;
+import com.epimorphismmc.eunetwork.common.data.EUNetworkTypes;
 import com.epimorphismmc.eunetwork.network.s2c.SPacketEUNetworkPayload;
 import com.epimorphismmc.eunetwork.utils.EUNetUtils;
 import com.lowdragmc.lowdraglib.networking.IHandlerContext;
@@ -68,7 +68,7 @@ public class MessageHandler {
         payload.writeVarInt(1); // size
         payload.writeVarInt(network.getId());
         final var tag = new CompoundTag();
-        network.serializeNBT(tag, type);
+        network.serialize(tag, type);
         payload.writeNbt(tag);
         return new SPacketEUNetworkPayload(S2C_UPDATE_NETWORK, payload);
     }
@@ -81,7 +81,7 @@ public class MessageHandler {
         for (var network : networks) {
             payload.writeVarInt(network.getId());
             final var tag = new CompoundTag();
-            network.serializeNBT(tag, type);
+            network.serialize(tag, type);
             payload.writeNbt(tag);
         }
         return new SPacketEUNetworkPayload(S2C_UPDATE_NETWORK, payload);
@@ -95,7 +95,7 @@ public class MessageHandler {
         for (var networkID : networkIDs) {
             payload.writeVarInt(networkID);
             final var tag = new CompoundTag();
-            EUNetworkManager.getInstance().getNetwork(networkID).serializeNBT(tag, type);
+            EUNetworkManager.getInstance().getNetwork(networkID).serialize(tag, type);
             payload.writeNbt(tag);
         }
         return new SPacketEUNetworkPayload(S2C_UPDATE_NETWORK, payload);
@@ -158,7 +158,7 @@ public class MessageHandler {
             response(token, EUNetValues.REQUEST_CREATE_NETWORK, EUNetValues.RESPONSE_REJECT, p);
             return;
         }
-        if (EUNetworkManager.getInstance().createNetwork(p, name) != null) {
+        if (EUNetworkManager.getInstance().createNetwork(p, name, EUNetworkTypes.BUILT) != null) {
             response(token, EUNetValues.REQUEST_CREATE_NETWORK, EUNetValues.RESPONSE_SUCCESS, p);
         } else {
             response(token, EUNetValues.REQUEST_CREATE_NETWORK, EUNetValues.RESPONSE_NO_SPACE, p);

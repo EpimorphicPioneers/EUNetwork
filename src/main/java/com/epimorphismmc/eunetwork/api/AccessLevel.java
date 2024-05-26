@@ -2,6 +2,8 @@ package com.epimorphismmc.eunetwork.api;
 
 import com.lowdragmc.lowdraglib.utils.LocalizationUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,6 +31,11 @@ public enum AccessLevel implements StringRepresentable {
 
     public byte getKey() {
         return (byte) ordinal();
+    }
+
+    @NotNull
+    public MutableComponent getComponent() {
+        return Component.translatable(translationKey).withStyle(formatting);
     }
 
     @NotNull

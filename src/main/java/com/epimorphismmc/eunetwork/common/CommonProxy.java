@@ -29,13 +29,12 @@ public class CommonProxy implements ICommonProxyBase {
     @Override
     public void onModLoadCompleteEvent(FMLLoadCompleteEvent event) {
         EUNetworkManager.registerFactory(ServerEUNetwork.FACTORY);
-
-        if (EUNetIntegration.isFTBTeamsLoaded()) {
-            event.enqueueWork(() -> {
+        event.enqueueWork(() -> {
+            if (EUNetIntegration.isFTBTeamsLoaded()) {
                 EUNet.logger().info("FTB Teams found. Enabling integration...");
                 EUNetworkManager.registerFactory(FTBEUNetwork.FACTORY);
-            });
-        }
+            }
+        });
     }
 
     /* -------------------------------------------------- Registration Methods -------------------------------------------------- */

@@ -90,7 +90,8 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
                 .collect(Collectors.toSet());
     }
 
-    public EUNetwork createNetwork(@NotNull Player creator, @NotNull String name) {
+    @Nullable
+    public EUNetwork createNetwork(@NotNull Player creator, @NotNull String name, ResourceLocation type) {
         final int max = EUNetConfigHolder.INSTANCE.maximumPerPlayer;
         if (max != -1) {
             if (max <= 0) {
@@ -108,7 +109,13 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
             uniqueID++;
         } while (networks.containsKey(uniqueID));
 
-        final ServerEUNetwork network = new ServerEUNetwork(uniqueID, name, creator);
+        var factory = factories.get(type);
+        if (factory == null) {
+            EUNet.logger().error("Unknown network type: " + type);
+            return null;
+        }
+
+        final EUNetwork network = factory.createEUNetwork(uniqueID, name, creator);
 
         networks.put(network.getId(), network);
         network().sendToAll(MessageHandler.updateNetwork(network, EUNetValues.NBT_NET_BASIC));
@@ -136,7 +143,7 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
                 var type = ResourceLocation.tryParse(tag.getString("type"));
                 var factory = factories.get(type);
                 if (factory != null) {
-                    var network = factory.createEUNetwork(list.getCompound(i), EUNetValues.NBT_SAVE_ALL);
+                    var network = factory.deserialize(list.getCompound(i), EUNetValues.NBT_SAVE_ALL);
                     if (network.getId() > 0) {
                         this.networks.put(network.getId(), network);
                     }
@@ -155,7 +162,7 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
         for (EUNetwork network : networks.values()) {
             CompoundTag tag = new CompoundTag();
             tag.putString("type", network.getFactory().getType().toString());
-            network.serializeNBT(tag, EUNetValues.NBT_SAVE_ALL);
+            network.serialize(tag, EUNetValues.NBT_SAVE_ALL);
             list.add(tag);
         }
         compound.put(NETWORKS, list);

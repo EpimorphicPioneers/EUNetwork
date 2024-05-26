@@ -6,6 +6,7 @@ import com.epimorphismmc.eunetwork.api.IEUNetwork;
 import com.epimorphismmc.eunetwork.api.IEUNetworkFactory;
 import com.epimorphismmc.eunetwork.api.NetworkMember;
 import com.epimorphismmc.eunetwork.common.ServerEUNetwork;
+import com.epimorphismmc.eunetwork.common.data.EUNetworkTypes;
 import com.epimorphismmc.monomorphism.utility.MOUtils;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
@@ -26,8 +27,14 @@ import static com.epimorphismmc.eunetwork.api.EUNetValues.*;
 public class FTBEUNetwork extends ServerEUNetwork {
 
     public static final IEUNetworkFactory<FTBEUNetwork> FACTORY = new IEUNetworkFactory<>() {
+
         @Override
-        public FTBEUNetwork createEUNetwork(CompoundTag tag, byte type) {
+        public FTBEUNetwork createEUNetwork(int id, String name, @NotNull Player owner) {
+            return new FTBEUNetwork(id, name, owner);
+        }
+
+        @Override
+        public FTBEUNetwork deserialize(CompoundTag tag, byte type) {
             var network = new FTBEUNetwork();
             network.deserializeNBT(tag, type);
             return network;
@@ -35,9 +42,16 @@ public class FTBEUNetwork extends ServerEUNetwork {
 
         @Override
         public ResourceLocation getType() {
-            return EUNet.id("ftb");
+            return EUNetworkTypes.FTB;
         }
     };
+
+    public FTBEUNetwork() {
+    }
+
+    public FTBEUNetwork(int id, String name, @NotNull Player owner) {
+        super(id, name, owner);
+    }
 
     @NotNull
     @Override

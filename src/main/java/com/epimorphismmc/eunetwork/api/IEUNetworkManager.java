@@ -1,6 +1,7 @@
 package com.epimorphismmc.eunetwork.api;
 
 import com.epimorphismmc.eunetwork.common.EUNetwork;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +17,7 @@ public interface IEUNetworkManager {
     default Collection<EUNetwork> getNetworkByPlayer(ServerPlayer player) {
         return getNetworkByUUID(player.getUUID());
     }
-    EUNetwork createNetwork(@NotNull Player creator, @NotNull String name);
+    EUNetwork createNetwork(@NotNull Player creator, @NotNull String name, @NotNull ResourceLocation type);
     void deleteNetwork(@NotNull EUNetwork network);
     void setDirty();
 }
