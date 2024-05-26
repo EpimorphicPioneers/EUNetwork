@@ -40,6 +40,8 @@ dependencyResolutionManagement {
         def configurationVersion = "2.2.0"
         def ldLibVersion = "1.0.25.j"
         def mixinextrasVersion = "0.3.2"
+        def architecturyApiversion = "9.1.12"
+        def ftbLibVersion = "2001.2.2"
 
         forge {
             version("forgeShortVersion", forgeVersion)
@@ -81,8 +83,14 @@ dependencyResolutionManagement {
             library("monomorphism", "com.epimorphismmc.monomorphism", "monomorphism-${minecraftVersion}").versionRef(MonomorphismLib)
 
 
-            def ftbTeam = version("ftbTeam", ftbTeamForgeVersion)
-            library("ftbTeam", "curse.maven", "ftbTeam-404468").versionRef(ftbTeam)
+            def ftbTeam = version("ftbteam", ftbTeamForgeVersion)
+            library("ftbteam", "curse.maven", "ftbTeam-404468").versionRef(ftbTeam)
+
+            def ftbLib = version("ftblib", ftbLibVersion)
+            library("ftblib", "dev.ftb.mods", "ftb-library-forge").versionRef(ftbLib)
+
+            def architecturyApi = version("architectury-api", architecturyApiversion)
+            library("architectury-api", "dev.architectury", "architectury-forge").versionRef(architecturyApi)
         }
 
         libs {

@@ -46,7 +46,7 @@ public class NetworkTerminalBehavior implements IInteractionItem {
                                 return InteractionResult.CONSUME;
                             }
                         }
-                        var network = EUNetworkData.getInstance().createNetwork(player, player.getName().getString() + " s' Network", EUNetworkTypes.BUILT);
+                        var network = EUNetworkManager.getInstance().createNetwork(player, player.getName().getString() + " s' Network", EUNetworkTypes.BUILT);
                         if (network != null) {
                             networkMachine.setEUNetwork(context.getPlayer(), network);
                             tag.putInt("network", network.getId());

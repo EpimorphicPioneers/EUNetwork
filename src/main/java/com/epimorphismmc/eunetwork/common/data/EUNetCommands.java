@@ -1,17 +1,14 @@
 package com.epimorphismmc.eunetwork.common.data;
 
 import com.epimorphismmc.eunetwork.EUNet;
-import com.epimorphismmc.eunetwork.api.IEUNetwork;
-import com.epimorphismmc.eunetwork.common.EUNetwork;
-import com.epimorphismmc.eunetwork.common.EUNetworkManager;
 import com.epimorphismmc.eunetwork.api.AccessLevel;
 import com.epimorphismmc.eunetwork.api.EUNetValues;
 import com.epimorphismmc.eunetwork.api.NetworkMember;
+import com.epimorphismmc.eunetwork.common.EUNetwork;
 import com.epimorphismmc.eunetwork.common.EUNetworkBase;
-import com.epimorphismmc.eunetwork.common.EUNetworkData;
+import com.epimorphismmc.eunetwork.common.EUNetworkManager;
 import com.epimorphismmc.eunetwork.utils.EUNetUtils;
 import com.epimorphismmc.monomorphism.utility.MOFormattingUtils;
-import com.epimorphismmc.eunetwork.common.EUNetworkManager;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -45,21 +42,21 @@ public class EUNetCommands {
 
     private static final Predicate<CommandSourceStack> HAS_PERMISSION = s -> s.hasPermission(2);
     private static final SuggestionProvider<CommandSourceStack> ALL_NETWORK_SUGGESTIONS = (ctx, builder) -> {
-        EUNetworkData.getAllNetworks().forEach(n -> builder.suggest(n.getId()));
+        EUNetworkManager.getInstance().getAllNetworks().forEach(n -> builder.suggest(n.getId()));
         return builder.buildFuture();
     };
     private static final SuggestionProvider<CommandSourceStack> OWNER_NETWORK_SUGGESTIONS = (ctx, builder) -> {
         ServerPlayer player = ctx.getSource().getPlayer();
         if (player == null) return Suggestions.empty();
-        EUNetworkData.getAllNetworks().stream()
-            .filter(n -> n.getOwnerUUID().equals(player.getUUID()))
+        EUNetworkManager.getInstance().getAllNetworks().stream()
+            .filter(n -> n.getOwner().equals(player.getUUID()))
             .forEach(n -> builder.suggest(n.getId()));
         return builder.buildFuture();
     };
     private static final SuggestionProvider<CommandSourceStack> ACCESSABLE_NETWORK_SUGGESTIONS = (ctx, builder) -> {
         ServerPlayer player = ctx.getSource().getPlayer();
         if (player == null) return Suggestions.empty();
-        EUNetworkData.getAllNetworks().stream()
+        EUNetworkManager.getInstance().getAllNetworks().stream()
             .filter(n -> n.canPlayerAccess(player.getUUID()))
             .forEach(n -> builder.suggest(n.getId()));
         return builder.buildFuture();
@@ -145,7 +142,7 @@ public class EUNetCommands {
             ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network_name", name));
         } else {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            EUNetworkBase network = EUNetworkData.getInstance().createNetwork(player, name);
+            EUNetworkBase network = EUNetworkManager.getInstance().createNetwork(player, name, EUNetworkTypes.BUILT);
             if (network == null) {
                 ctx.getSource().sendFailure(Component.translatable("message.eunetwork.network_limited"));
             } else {
@@ -158,7 +155,7 @@ public class EUNetCommands {
         return 1;
     }
 
-    private static void sendNetworkInfo(CommandContext<CommandSourceStack> ctx, EUNetworkBase network) {
+    private static void sendNetworkInfo(CommandContext<CommandSourceStack> ctx, EUNetwork network) {
         ctx.getSource().sendSuccess(
             () -> Component.translatable("message.eunetwork.network_name", Component.literal(network.getName()).withStyle(ChatFormatting.AQUA))
                 .append(modifyButton("/%s %s %s %d %s".formatted(EUNet.MODID, "modify", "name", network.getId(), network.getName()))),
@@ -224,7 +221,7 @@ public class EUNetCommands {
         .then(Commands.literal("info")
             .executes(ctx -> {
                 ServerPlayer player = ctx.getSource().getPlayerOrException();
-                for (EUNetworkBase network : EUNetworkData.getAllNetworks()) {
+                for (EUNetwork network : EUNetworkManager.getInstance().getAllNetworks()) {
                     if (network.canPlayerAccess(player)) {
                         sendNetworkInfo(ctx, network);
                     }
@@ -235,7 +232,7 @@ public class EUNetCommands {
                 .suggests(ACCESSABLE_NETWORK_SUGGESTIONS)
                 .executes(ctx -> {
                     int id = IntegerArgumentType.getInteger(ctx, "id");
-                    EUNetworkBase network = EUNetworkData.getNetwork(id);
+                    EUNetwork network = EUNetworkManager.getInstance().getNetwork(id);
                     if (network == null) {
                         ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                     } else {
@@ -254,7 +251,7 @@ public class EUNetCommands {
                         ServerPlayer player = ctx.getSource().getPlayerOrException();
                         int id = IntegerArgumentType.getInteger(ctx, "id");
                         ServerPlayer playerInvited = EntityArgument.getPlayer(ctx, "player");
-                        EUNetworkBase network = EUNetworkData.getNetwork(id);
+                        EUNetwork network = EUNetworkManager.getInstance().getNetwork(id);
                         if (network == null) {
                             ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                         } else {
@@ -271,7 +268,7 @@ public class EUNetCommands {
                 .suggests(ACCESSABLE_NETWORK_SUGGESTIONS)
                 .executes(ctx -> {
                     int id = IntegerArgumentType.getInteger(ctx, "id");
-                    EUNetworkBase network = EUNetworkData.getNetwork(id);
+                    EUNetwork network = EUNetworkManager.getInstance().getNetwork(id);
                     if (network == null) {
                         ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                     } else {
@@ -292,7 +289,7 @@ public class EUNetCommands {
                         ServerPlayer player = ctx.getSource().getPlayerOrException();
                         int id = IntegerArgumentType.getInteger(ctx, "id");
                         ServerPlayer playerKicked = EntityArgument.getPlayer(ctx, "player");
-                        EUNetworkBase network = EUNetworkData.getNetwork(id);
+                        EUNetwork network = EUNetworkManager.getInstance().getNetwork(id);
                         if (network == null) {
                             ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                         } else {
@@ -313,7 +310,7 @@ public class EUNetCommands {
                         ServerPlayer player = ctx.getSource().getPlayerOrException();
                         int id = IntegerArgumentType.getInteger(ctx, "id");
                         ServerPlayer playerTransfer = EntityArgument.getPlayer(ctx, "player");
-                        EUNetworkBase network = EUNetworkData.getNetwork(id);
+                        EUNetwork network = EUNetworkManager.getInstance().getNetwork(id);
                         if (network == null) {
                             ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                         } else {
@@ -345,11 +342,11 @@ public class EUNetCommands {
                         .executes(ctx -> {
                             String name = StringArgumentType.getString(ctx, "name");
                             int id = IntegerArgumentType.getInteger(ctx, "id");
-                            EUNetworkBase network = EUNetworkData.getNetwork(id);
+                            EUNetwork network = EUNetworkManager.getInstance().getNetwork(id);
                             if (network == null) {
                                 ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                             } else {
-                                if (network.setNetworkName(name)) {
+                                if (network.setName(name)) {
                                     ctx.getSource().sendSuccess(
                                         () -> Component.translatable("message.eunetwork.modify_name_successed"),
                                         true

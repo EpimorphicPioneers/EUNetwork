@@ -58,6 +58,10 @@ dependencies {
     // Monomorphism
     modImplementation(forge.monomorphism)
 
+    modApi(forge.ftblib) { transitive = false }
+
+    modApi(forge.architectury.api) { transitive = false }
+
     // FTBTeam
-    modCompileOnly(forge.ftbTeam)
+    modImplementation(forge.ftbteam)
 }
