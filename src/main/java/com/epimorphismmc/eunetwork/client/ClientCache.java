@@ -24,8 +24,6 @@ public final class ClientCache {
 
     private static final Int2ObjectOpenHashMap<EUNetworkBase> sNetworks =
             new Int2ObjectOpenHashMap<>();
-    private static final Int2ObjectLinkedOpenHashMap<String> sRecentPasswords =
-            new Int2ObjectLinkedOpenHashMap<>(MAX_RECENT_PASSWORD_COUNT); // LRU cache
 
     private ClientCache() {
     }
@@ -36,7 +34,6 @@ public final class ClientCache {
     public static void release() {
         sNetworks.clear();
         sNetworks.trim(); // rehash
-        sRecentPasswords.clear(); // preserved memory, no need to rehash
         EUNet.logger().info("Released client Flux Networks cache");
     }
 
@@ -48,10 +45,10 @@ public final class ClientCache {
     }
 
     public static void updateNetwork(@Nonnull Int2ObjectMap<CompoundTag> map, byte type) {
-        for (var e : map.int2ObjectEntrySet()) {
-            sNetworks.computeIfAbsent(e.getIntKey(), ClientEUNetwork::new)
-                    .readCustomTag(e.getValue(), type);
-        }
+//        for (var e : map.int2ObjectEntrySet()) {
+//            sNetworks.computeIfAbsent(e.getIntKey(), ClientEUNetwork::new)
+//                    .readCustomTag(e.getValue(), type);
+//        }
     }
 
     @Nullable
@@ -66,18 +63,5 @@ public final class ClientCache {
 
     public static void deleteNetwork(int id) {
         sNetworks.remove(id);
-    }
-
-    @Nonnull
-    public static String getRecentPassword(int id) {
-        return sRecentPasswords.getOrDefault(id, "");
-    }
-
-    public static void updateRecentPassword(int id, String password) {
-        // remember last 5 passwords so that no need to enter password again
-        for (int i = MAX_RECENT_PASSWORD_COUNT; i < sRecentPasswords.size(); i++) {
-            sRecentPasswords.removeFirst();
-        }
-        sRecentPasswords.put(id, password);
     }
 }

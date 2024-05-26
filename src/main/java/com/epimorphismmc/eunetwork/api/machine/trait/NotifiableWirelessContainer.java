@@ -1,8 +1,7 @@
 package com.epimorphismmc.eunetwork.api.machine.trait;
 
-import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.api.machine.feature.IEUNetworkMachine;
-import com.epimorphismmc.eunetwork.common.EUNetworkData;
+import com.epimorphismmc.eunetwork.common.EUNetworkManager;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
@@ -45,7 +44,7 @@ public class NotifiableWirelessContainer extends NotifiableEnergyContainer {
         if (getMachine().getOffsetTimer() % 20L != 0L) return;
         if (!getEUNetworkMachine().canAccessNetwork()) return;
 
-        var network = EUNetworkData.getNetwork(networkID);
+        var network = EUNetworkManager.getInstance().getNetwork(networkID);
         if (network != null) {
             if (network.canPlayerAccess(getEUNetworkMachine().getOwnerUUID())) {
                 if (this.getInputVoltage() == 0) {

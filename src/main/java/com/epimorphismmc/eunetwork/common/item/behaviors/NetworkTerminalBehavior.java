@@ -1,7 +1,7 @@
 package com.epimorphismmc.eunetwork.common.item.behaviors;
 
 import com.epimorphismmc.eunetwork.api.machine.feature.IEUNetworkMachine;
-import com.epimorphismmc.eunetwork.common.EUNetworkData;
+import com.epimorphismmc.eunetwork.common.EUNetworkManager;
 import com.gregtechceu.gtceu.api.item.component.IInteractionItem;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import net.minecraft.core.BlockPos;
@@ -34,16 +34,17 @@ public class NetworkTerminalBehavior implements IInteractionItem {
                 if (!level.isClientSide) {
                     var tag = getOrCreateTerminalStatsTag(context.getItemInHand());
                     if (tag.contains("network", Tag.TAG_ANY_NUMERIC)) {
-                        networkMachine.setEUNetwork(player, EUNetworkData.getNetwork(tag.getInt("network")));
+                        var network = EUNetworkManager.getInstance().getNetwork(tag.getInt("network"));
+                        networkMachine.setEUNetwork(player, network);
                     } else {
-                        for (var network : EUNetworkData.getAllNetworks()) {
-                            if (network.getOwnerUUID().equals(player.getUUID())) {
+                        for (var network : EUNetworkManager.getInstance().getAllNetworks()) {
+                            if (network.getOwner().equals(player.getUUID())) {
                                 networkMachine.setEUNetwork(player, network);
                                 tag.putInt("network", network.getId());
                                 return InteractionResult.CONSUME;
                             }
                         }
-                        var network = EUNetworkData.getInstance().createNetwork(context.getPlayer(), "Test");
+                        var network = EUNetworkManager.getInstance().createNetwork(context.getPlayer(), "Test");
                         if (network != null) {
                             networkMachine.setEUNetwork(context.getPlayer(), network);
                             tag.putInt("network", network.getId());

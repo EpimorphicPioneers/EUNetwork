@@ -2,8 +2,9 @@ package com.epimorphismmc.eunetwork.network.eunetwork;
 
 import com.epimorphismmc.eunetwork.EUNet;
 import com.epimorphismmc.eunetwork.api.EUNetValues;
+import com.epimorphismmc.eunetwork.common.EUNetwork;
 import com.epimorphismmc.eunetwork.common.EUNetworkBase;
-import com.epimorphismmc.eunetwork.common.EUNetworkData;
+import com.epimorphismmc.eunetwork.common.EUNetworkManager;
 import com.epimorphismmc.eunetwork.network.s2c.SPacketEUNetworkPayload;
 import com.epimorphismmc.eunetwork.utils.EUNetUtils;
 import com.lowdragmc.lowdraglib.networking.IHandlerContext;
@@ -61,26 +62,26 @@ public class MessageHandler {
      * Variation of {@link #updateNetwork(Collection, byte)} that updates only one network.
      */
     @Nonnull
-    public static SPacketEUNetworkPayload updateNetwork(EUNetworkBase network, byte type) {
+    public static SPacketEUNetworkPayload updateNetwork(EUNetwork network, byte type) {
         var payload = getBuffer();
         payload.writeByte(type);
         payload.writeVarInt(1); // size
         payload.writeVarInt(network.getId());
         final var tag = new CompoundTag();
-        network.writeCustomTag(tag, type);
+        network.serializeNBT(tag, type);
         payload.writeNbt(tag);
         return new SPacketEUNetworkPayload(S2C_UPDATE_NETWORK, payload);
     }
 
     @Nonnull
-    public static SPacketEUNetworkPayload updateNetwork(Collection<EUNetworkBase> networks, byte type) {
+    public static SPacketEUNetworkPayload updateNetwork(Collection<EUNetwork> networks, byte type) {
         var payload = getBuffer();
         payload.writeByte(type);
         payload.writeVarInt(networks.size());
         for (var network : networks) {
             payload.writeVarInt(network.getId());
             final var tag = new CompoundTag();
-            network.writeCustomTag(tag, type);
+            network.serializeNBT(tag, type);
             payload.writeNbt(tag);
         }
         return new SPacketEUNetworkPayload(S2C_UPDATE_NETWORK, payload);
@@ -94,7 +95,7 @@ public class MessageHandler {
         for (var networkID : networkIDs) {
             payload.writeVarInt(networkID);
             final var tag = new CompoundTag();
-            EUNetworkData.getNetwork(networkID).writeCustomTag(tag, type);
+            EUNetworkManager.getInstance().getNetwork(networkID).serializeNBT(tag, type);
             payload.writeNbt(tag);
         }
         return new SPacketEUNetworkPayload(S2C_UPDATE_NETWORK, payload);
@@ -157,7 +158,7 @@ public class MessageHandler {
             response(token, EUNetValues.REQUEST_CREATE_NETWORK, EUNetValues.RESPONSE_REJECT, p);
             return;
         }
-        if (EUNetworkData.getInstance().createNetwork(p, name) != null) {
+        if (EUNetworkManager.getInstance().createNetwork(p, name) != null) {
             response(token, EUNetValues.REQUEST_CREATE_NETWORK, EUNetValues.RESPONSE_SUCCESS, p);
         } else {
             response(token, EUNetValues.REQUEST_CREATE_NETWORK, EUNetValues.RESPONSE_NO_SPACE, p);
@@ -176,11 +177,11 @@ public class MessageHandler {
         if (p == null) {
             return;
         }
-        final EUNetworkBase network = EUNetworkData.getNetwork(networkID);
+        final EUNetwork network = EUNetworkManager.getInstance().getNetwork(networkID);
 
         if (network != null) {
             if (network.getPlayerAccess(p).canDelete()) {
-                EUNetworkData.getInstance().deleteNetwork(network);
+                EUNetworkManager.getInstance().deleteNetwork(network);
                 response(token, EUNetValues.REQUEST_DELETE_NETWORK, EUNetValues.RESPONSE_SUCCESS, p);
             } else {
                 response(token, EUNetValues.REQUEST_DELETE_NETWORK, EUNetValues.RESPONSE_NO_OWNER, p);
@@ -204,7 +205,7 @@ public class MessageHandler {
         if (p == null) {
             return;
         }
-        final EUNetworkBase network = EUNetworkData.getNetwork(networkID);
+        final EUNetwork network = EUNetworkManager.getInstance().getNetwork(networkID);
         boolean reject = true;
         if (reject) {
             response(token, EUNetValues.REQUEST_EDIT_MEMBER, EUNetValues.RESPONSE_REJECT, p);
@@ -234,14 +235,14 @@ public class MessageHandler {
         if (p == null) {
             return;
         }
-        final EUNetworkBase network = EUNetworkData.getNetwork(networkID);
+        final EUNetwork network = EUNetworkManager.getInstance().getNetwork(networkID);
         boolean reject = true;
         if (reject) {
             response(token, EUNetValues.REQUEST_EDIT_NETWORK, EUNetValues.RESPONSE_REJECT, p);
             return;
         }
         if (network.getPlayerAccess(p).canEdit()) {
-            boolean changed = network.setNetworkName(name);
+            boolean changed = network.setName(name);
             if (changed) {
                 network().sendToAll(updateNetwork(network, EUNetValues.NBT_NET_BASIC));
             }

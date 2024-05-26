@@ -2,10 +2,12 @@ package com.epimorphismmc.eunetwork.api;
 
 import com.lowdragmc.lowdraglib.utils.LocalizationUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
+import java.util.Locale;
 
-public enum AccessLevel {
+public enum AccessLevel implements StringRepresentable {
     OWNER("eunetwork.owner", ChatFormatting.GOLD),
     USER("eunetwork.user", ChatFormatting.BLUE),
     BLOCKED("eunetwork.block", ChatFormatting.GRAY);
@@ -20,7 +22,7 @@ public enum AccessLevel {
         this.formatting = formatting;
     }
 
-    @Nonnull
+    @NotNull
     public static AccessLevel fromKey(byte key) {
         return VALUES[key];
     }
@@ -29,7 +31,7 @@ public enum AccessLevel {
         return (byte) ordinal();
     }
 
-    @Nonnull
+    @NotNull
     public String getFormattedName() {
         return formatting + LocalizationUtils.format(translationKey);
     }
@@ -44,5 +46,11 @@ public enum AccessLevel {
 
     public boolean canDelete() {
         return this == OWNER;
+    }
+
+    @Override
+    @NotNull
+    public String getSerializedName() {
+        return name().toLowerCase(Locale.ROOT);
     }
 }

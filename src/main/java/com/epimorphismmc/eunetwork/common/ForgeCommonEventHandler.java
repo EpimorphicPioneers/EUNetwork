@@ -13,7 +13,7 @@ public class ForgeCommonEventHandler {
     @SubscribeEvent
     public static void onServerStopped(ServerStoppedEvent event) {
         // mainly used to reload data while changing single-player saves, unnecessary on dedicated server
-        EUNetworkData.release();
+        EUNetworkManager.release();
     }
 
     @SubscribeEvent

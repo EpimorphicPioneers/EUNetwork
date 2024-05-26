@@ -1,25 +1,46 @@
 package com.epimorphismmc.eunetwork.common;
 
-import com.epimorphismmc.eunetwork.api.AccessLevel;
-import com.epimorphismmc.eunetwork.api.EUNetValues;
-import com.epimorphismmc.eunetwork.api.NetworkMember;
+import com.epimorphismmc.eunetwork.EUNet;
+import com.epimorphismmc.eunetwork.api.*;
 import com.epimorphismmc.monomorphism.utility.BigIntStorage;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
-public class ServerEUNetwork extends EUNetworkBase {
+public class ServerEUNetwork extends EUNetwork {
+
+    public static final IEUNetworkFactory<ServerEUNetwork> FACTORY = new IEUNetworkFactory<>() {
+        @Override
+        public ServerEUNetwork createEUNetwork(CompoundTag tag, byte type) {
+            var network = new ServerEUNetwork();
+            network.deserializeNBT(tag, type);
+            return network;
+        }
+
+        @Override
+        public ResourceLocation getType() {
+            return EUNet.id("server");
+        }
+    };
 
     private final BigIntStorage storage;
 
-    ServerEUNetwork() {
+    protected ServerEUNetwork() {
         this.storage = new BigIntStorage();
     }
 
-    ServerEUNetwork(int id, String name,  @Nonnull Player owner) {
+    protected ServerEUNetwork(int id, String name,  @Nonnull Player owner) {
         super(id, name, owner);
         this.storage = new BigIntStorage();
     }
@@ -31,25 +52,25 @@ public class ServerEUNetwork extends EUNetworkBase {
 
     @Override
     public long addEnergy(long energyToAdd) {
-        EUNetworkData.markDirty();
+        EUNetworkManager.getInstance().setDirty();
         return storage.add(energyToAdd);
     }
 
     @Override
     public long removeEnergy(long energyToRemove) {
-        EUNetworkData.markDirty();
+        EUNetworkManager.getInstance().setDirty();
         return storage.remove(energyToRemove);
     }
 
     @Override
     public BigInteger addEnergy(BigInteger energyToAdd) {
-        EUNetworkData.markDirty();
+        EUNetworkManager.getInstance().setDirty();
         return storage.add(energyToAdd);
     }
 
     @Override
     public BigInteger removeEnergy(BigInteger energyToRemove) {
-        EUNetworkData.markDirty();
+        EUNetworkManager.getInstance().setDirty();
         return storage.remove(energyToRemove);
     }
 
@@ -108,7 +129,7 @@ public class ServerEUNetwork extends EUNetworkBase {
                         f.setAccessLevel(AccessLevel.USER);
                     }
                 });
-                this.ownerUUID = targetUUID;
+                this.owner = targetUUID;
                 current.setAccessLevel(AccessLevel.OWNER);
                 changed = true;
             }
@@ -131,7 +152,7 @@ public class ServerEUNetwork extends EUNetworkBase {
                 });
                 NetworkMember m = NetworkMember.create(target, AccessLevel.OWNER);
                 mMemberMap.put(m.getPlayerUUID(), m);
-                this.ownerUUID = targetUUID;
+                this.owner = targetUUID;
                 return EUNetValues.RESPONSE_SUCCESS;
             } else {
                 return EUNetValues.RESPONSE_INVALID_USER;
@@ -141,6 +162,88 @@ public class ServerEUNetwork extends EUNetworkBase {
         }
     }
 
+    @Override
+    public void serializeNBT(@Nonnull CompoundTag tag, byte type) {
+        if (type == EUNetValues.NBT_NET_BASIC || type == EUNetValues.NBT_SAVE_ALL) {
+            tag.putInt(EUNetValues.NETWORK_ID, id);
+            tag.putString(NETWORK_NAME, name);
+            tag.putUUID(OWNER_UUID, owner);
+            tag.putString(STORAGE, getStorage().toString());
+        }
+        if (type == EUNetValues.NBT_SAVE_ALL) {
+            Collection<NetworkMember> members = getAllMembers();
+            if (!members.isEmpty()) {
+                ListTag list = new ListTag();
+                for (NetworkMember member : members) {
+                    CompoundTag subTag = new CompoundTag();
+                    member.writeNBT(subTag);
+                    list.add(subTag);
+                }
+                tag.put(MEMBERS, list);
+            }
+
+        }
+        if (type == EUNetValues.NBT_NET_MEMBERS) {
+            Collection<NetworkMember> members = getAllMembers();
+            ListTag list = new ListTag();
+            if (!members.isEmpty()) {
+                for (NetworkMember m : members) {
+                    CompoundTag subTag = new CompoundTag();
+                    m.writeNBT(subTag);
+                    list.add(subTag);
+                }
+            }
+            List<ServerPlayer> players = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers();
+            for (ServerPlayer p : players) {
+                if (getMemberByUUID(p.getUUID()) == null) {
+                    CompoundTag subTag = new CompoundTag();
+                    NetworkMember.create(p, AccessLevel.BLOCKED)
+                            .writeNBT(subTag);
+                    list.add(subTag);
+                }
+            }
+            tag.put(MEMBERS, list);
+        }
+
+        if (type == EUNetValues.NBT_NET_STATISTICS) {
+            mStatistics.writeNBT(tag);
+        }
+    }
+
+    @Override
+    public IEUNetworkFactory<? extends IEUNetwork> getFactory() {
+        return FACTORY;
+    }
+
+    public void deserializeNBT(@Nonnull CompoundTag tag, byte type) {
+        if (type == EUNetValues.NBT_NET_BASIC || type == EUNetValues.NBT_SAVE_ALL) {
+            this.id = tag.getInt(EUNetValues.NETWORK_ID);
+            this.name = tag.getString(NETWORK_NAME);
+            this.owner = tag.getUUID(OWNER_UUID);
+            setStorage(new BigInteger(tag.getString(STORAGE)));
+        }
+        if (type == EUNetValues.NBT_SAVE_ALL) {
+            ListTag list = tag.getList(MEMBERS, Tag.TAG_COMPOUND);
+            for (int i = 0; i < list.size(); i++) {
+                CompoundTag c = list.getCompound(i);
+                NetworkMember m = new NetworkMember(c);
+                mMemberMap.put(m.getPlayerUUID(), m);
+            }
+        }
+        if (type == EUNetValues.NBT_NET_MEMBERS) {
+            mMemberMap.clear();
+            ListTag list = tag.getList(MEMBERS, Tag.TAG_COMPOUND);
+            for (int i = 0; i < list.size(); i++) {
+                CompoundTag c = list.getCompound(i);
+                NetworkMember m = new NetworkMember(c);
+                mMemberMap.put(m.getPlayerUUID(), m);
+            }
+        }
+
+        if (type == EUNetValues.NBT_NET_STATISTICS) {
+            mStatistics.readNBT(tag);
+        }
+    }
     /*
 
     @Override

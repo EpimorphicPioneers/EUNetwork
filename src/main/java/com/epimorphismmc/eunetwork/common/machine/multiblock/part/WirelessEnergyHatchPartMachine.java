@@ -1,9 +1,10 @@
 package com.epimorphismmc.eunetwork.common.machine.multiblock.part;
 
+import com.epimorphismmc.eunetwork.api.IEUNetwork;
 import com.epimorphismmc.eunetwork.api.machine.feature.IEUNetworkMachine;
 import com.epimorphismmc.eunetwork.api.machine.trait.NotifiableWirelessContainer;
 import com.epimorphismmc.eunetwork.common.EUNetworkBase;
-import com.epimorphismmc.eunetwork.common.EUNetworkData;
+import com.epimorphismmc.eunetwork.common.EUNetworkManager;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
@@ -136,7 +137,7 @@ public class WirelessEnergyHatchPartMachine extends TieredIOPartMachine implemen
     }
 
     @Override
-    public boolean setEUNetwork(Player player, @Nullable EUNetworkBase network) {
+    public boolean setEUNetwork(Player player, @Nullable IEUNetwork network) {
         if (player.getUUID().equals(ownerUUID)) {
             if (network == null) {
                 energyContainer.setNetworkID(-1);
@@ -150,8 +151,8 @@ public class WirelessEnergyHatchPartMachine extends TieredIOPartMachine implemen
     }
 
     @Override
-    public @Nullable EUNetworkBase getEUNetwork() {
-        return EUNetworkData.getNetwork(energyContainer.getNetworkID());
+    public @Nullable IEUNetwork getEUNetwork() {
+        return EUNetworkManager.getInstance().getNetwork(energyContainer.getNetworkID());
     }
 
     @Override

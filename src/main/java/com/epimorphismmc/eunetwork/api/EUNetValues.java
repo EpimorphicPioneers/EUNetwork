@@ -2,6 +2,8 @@ package com.epimorphismmc.eunetwork.api;
 
 public class EUNetValues {
 
+    public static final String MODID_FTB_TEAMS = "ftbteams";
+
     /**
      * NBT access type, save data to disk (R/W server only).
      */

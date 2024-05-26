@@ -7,8 +7,4 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ClientEUNetwork extends EUNetworkBase {
     public ClientEUNetwork(int ignored) {/**/}
 
-    @Override
-    public void onEndServerTick() {
-        throw new IllegalStateException();
-    }
 }

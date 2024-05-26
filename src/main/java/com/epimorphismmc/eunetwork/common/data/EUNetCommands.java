@@ -1,8 +1,9 @@
 package com.epimorphismmc.eunetwork.common.data;
 
 import com.epimorphismmc.eunetwork.EUNet;
-import com.epimorphismmc.eunetwork.common.EUNetworkBase;
-import com.epimorphismmc.eunetwork.common.EUNetworkData;
+import com.epimorphismmc.eunetwork.api.IEUNetwork;
+import com.epimorphismmc.eunetwork.common.EUNetwork;
+import com.epimorphismmc.eunetwork.common.EUNetworkManager;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -22,7 +23,7 @@ public class EUNetCommands {
     private static final RequiredArgumentBuilder<CommandSourceStack, Integer> NETWORK_ARGUMENT =
         Commands.argument("id", IntegerArgumentType.integer())
             .suggests((ctx, builder) -> {
-                EUNetworkData.getAllNetworks().forEach(n -> builder.suggest(n.getId()));
+                EUNetworkManager.getInstance().getAllNetworks().forEach(n -> builder.suggest(n.getId()));
                 return builder.buildFuture();
             });
 
@@ -31,7 +32,7 @@ public class EUNetCommands {
         .then(Commands.literal("get")
             .executes(src -> {
                 ServerPlayer player = src.getSource().getPlayerOrException();
-                for (EUNetworkBase network : EUNetworkData.getAllNetworks()) {
+                for (EUNetwork network : EUNetworkManager.getInstance().getAllNetworks()) {
                     if (network.canPlayerAccess(player)) {
                         src.getSource().sendSuccess(
                             () -> Component.translatable("message.eunetwork.network_id", network.getId()),
@@ -48,7 +49,7 @@ public class EUNetCommands {
             .then(NETWORK_ARGUMENT
                 .executes(src -> {
                     int id = IntegerArgumentType.getInteger(src, "id");
-                    EUNetworkBase network = EUNetworkData.getNetwork(id);
+                    EUNetwork network = EUNetworkManager.getInstance().getNetwork(id);
                     if (network == null) {
                         src.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                     } else {
@@ -76,7 +77,7 @@ public class EUNetCommands {
                             src.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_number", valueString));
                             return 0;
                         }
-                        EUNetworkBase network = EUNetworkData.getNetwork(id);
+                        EUNetwork network = EUNetworkManager.getInstance().getNetwork(id);
                         if (network == null) {
                             src.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                         } else {
