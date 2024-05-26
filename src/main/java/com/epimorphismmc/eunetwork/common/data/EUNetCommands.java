@@ -6,7 +6,7 @@ import com.epimorphismmc.eunetwork.api.EUNetValues;
 import com.epimorphismmc.eunetwork.api.NetworkMember;
 import com.epimorphismmc.eunetwork.common.EUNetworkBase;
 import com.epimorphismmc.eunetwork.common.EUNetworkData;
-import com.epimorphismmc.eunetwork.utils.NumberUtil;
+import com.epimorphismmc.monomorphism.utility.MOFormattingUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -46,7 +46,7 @@ public class EUNetCommands {
             true
         );
         ctx.getSource().sendSuccess(
-            () -> Component.translatable("message.eunetwork.network_storage", Component.literal(NumberUtil.formatBigInteger(network.getStorage())).withStyle(NUMBER)),
+            () -> Component.translatable("message.eunetwork.network_storage", Component.literal(MOFormattingUtils.abbreviate2F(network.getStorage())).withStyle(NUMBER)),
             true
         );
         ctx.getSource().sendSuccess(
