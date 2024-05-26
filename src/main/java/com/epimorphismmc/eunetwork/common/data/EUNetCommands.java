@@ -6,12 +6,14 @@ import com.epimorphismmc.eunetwork.api.EUNetValues;
 import com.epimorphismmc.eunetwork.api.NetworkMember;
 import com.epimorphismmc.eunetwork.common.EUNetworkBase;
 import com.epimorphismmc.eunetwork.common.EUNetworkData;
+import com.epimorphismmc.eunetwork.utils.EUNetUtils;
 import com.epimorphismmc.monomorphism.utility.MOFormattingUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import lombok.Getter;
@@ -24,6 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
 import java.text.NumberFormat;
@@ -33,7 +36,8 @@ import java.util.function.Predicate;
 public class EUNetCommands {
     private static final NumberFormat nf = NumberFormat.getInstance();
 
-    private static final Style NUMBER = Style.EMPTY.withColor(0x886eff);
+    private static final Style NUMBER = Style.EMPTY.withColor(0x886EFF);
+    private static final Style UNIT = Style.EMPTY.withColor(0xEE82EE);
 
     private static final Predicate<CommandSourceStack> HAS_PERMISSION = s -> s.hasPermission(2);
     private static final SuggestionProvider<CommandSourceStack> ALL_NETWORK_SUGGESTIONS = (ctx, builder) -> {
@@ -63,6 +67,53 @@ public class EUNetCommands {
         return builder.buildFuture();
     };
 
+    private static @NotNull Component kickButton(String command) {
+        return Component.literal(" [X]").withStyle(style -> style.withColor(ChatFormatting.RED)
+            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("message.eunetwork.click_to_kick")))
+            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
+        );
+    }
+
+    private static @NotNull Component transferButton(String command) {
+        return Component.literal(" [→]").withStyle(style -> style.withColor(ChatFormatting.DARK_RED)
+            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("message.eunetwork.click_to_transfer")))
+            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
+        );
+    }
+
+    private static @NotNull Component modifyButton(String command) {
+        return Component.literal(" [✎]").withStyle(style -> style.withColor(ChatFormatting.GREEN)
+            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("message.eunetwork.click_to_change_name")))
+            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
+        );
+    }
+
+    private static @NotNull Component numberText(BigInteger number) {
+        String text = MOFormattingUtils.abbreviate2F(number);
+
+        if (text.matches(".*[a-zA-Z]$")) {
+            return Component.literal(text.substring(0, text.length() - 2)).withStyle(NUMBER).append(Component.literal(text.substring(text.length()-1)).withStyle(UNIT));
+        } else if (text.contains("E")) {
+            int count = 0;
+            for (int i = 0; i < text.length(); i++) {
+                if (text.charAt(i) == 'E') {
+                    count++;
+                    if (i == text.length() - 1) {
+                        count = -1;
+                        break;
+                    }
+                }
+            }
+            if (count == 1) {
+                String[] split = text.split("E");
+                return Component.literal(split[0]).withStyle(NUMBER)
+                    .append(Component.literal("e+").withStyle(UNIT))
+                    .append(Component.literal(split[1]).withStyle(NUMBER));
+            }
+        }
+        return Component.literal(text).withStyle(NUMBER);
+    }
+
     private static int sendHelpMessage(CommandContext<CommandSourceStack> ctx) {
         ctx.getSource().sendSuccess(
             () -> Component.empty()
@@ -85,13 +136,36 @@ public class EUNetCommands {
         return 1;
     }
 
+    private static int createNewNetwork(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
+        if (EUNetUtils.isBadNetworkName(name)) {
+            ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network_name", name));
+        } else {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            EUNetworkBase network = EUNetworkData.getInstance().createNetwork(player, name);
+            if (network == null) {
+                ctx.getSource().sendFailure(Component.translatable("message.eunetwork.network_limited"));
+            } else {
+                ctx.getSource().sendSuccess(
+                    () -> Component.translatable("message.eunetwork.create_success"),
+                    true
+                );
+            }
+        }
+        return 1;
+    }
+
     private static void sendNetworkInfo(CommandContext<CommandSourceStack> ctx, EUNetworkBase network) {
         ctx.getSource().sendSuccess(
-            () -> Component.translatable("message.eunetwork.network_id", Component.literal("" + network.getId()).withStyle(NUMBER)),
+            () -> Component.translatable("message.eunetwork.network_name", Component.literal(network.getName()).withStyle(ChatFormatting.AQUA))
+                .append(modifyButton("/%s %s %s %d %s".formatted(EUNet.MODID, "modify", "name", network.getId(), network.getName()))),
             true
         );
         ctx.getSource().sendSuccess(
-            () -> Component.translatable("message.eunetwork.network_storage", Component.literal(MOFormattingUtils.abbreviate2F(network.getStorage())).withStyle(NUMBER)),
+            () -> Component.translatable("message.eunetwork.network_id", Component.literal("" + network.getId()).withStyle(ChatFormatting.GOLD)),
+            true
+        );
+        ctx.getSource().sendSuccess(
+            () -> Component.translatable("message.eunetwork.network_storage", numberText(network.getStorage())),
             true
         );
         ctx.getSource().sendSuccess(
@@ -110,11 +184,14 @@ public class EUNetCommands {
                     .append(Component.translatable(member.getAccessLevel().getTranslationKey()))
                     .append(Component.literal(": "))
                     .append(Component.literal(member.getCachedName()).withStyle(member.getAccessLevel().getFormatting()))
+                    .append(kickButton("/%s %s %d %s".formatted(EUNet.MODID, "kick", network.getId(), member.getCachedName())))
+                    .append(transferButton("/%s %s %s %d".formatted(EUNet.MODID, "transfer", member.getCachedName(), network.getId())))
                 ,
                 true
             );
         }
     }
+
 
     private static void sendChangeMembershipResponse(CommandContext<CommandSourceStack> ctx, int response) {
         switch (response) {
@@ -223,6 +300,66 @@ public class EUNetCommands {
                 )
             )
         )
+        .then(Commands.literal("transfer")
+            .then(Commands.argument("id", IntegerArgumentType.integer())
+                .suggests(OWNER_NETWORK_SUGGESTIONS)
+                .then(Commands.argument("player", EntityArgument.player())
+                    .suggests(ALL_PLAYER_SUGGESTIONS)
+                    .executes(ctx -> {
+                        ServerPlayer player = ctx.getSource().getPlayerOrException();
+                        int id = IntegerArgumentType.getInteger(ctx, "id");
+                        ServerPlayer playerTransfer = EntityArgument.getPlayer(ctx, "player");
+                        EUNetworkBase network = EUNetworkData.getNetwork(id);
+                        if (network == null) {
+                            ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
+                        } else {
+                            int response = network.changeMembership(player, playerTransfer.getUUID(), EUNetValues.MEMBERSHIP_TRANSFER_OWNERSHIP);
+                            sendChangeMembershipResponse(ctx, response);
+                        }
+                        return 1;
+                    })
+                )
+            )
+        )
+        .then(Commands.literal("create")
+            .executes(ctx -> {
+                ServerPlayer player = ctx.getSource().getPlayerOrException();
+                return createNewNetwork(ctx, player.getName().getString() + " s' Network");
+            })
+            .then(Commands.argument("name", StringArgumentType.greedyString())
+                .executes(ctx -> {
+                    String name = StringArgumentType.getString(ctx, "name");
+                    return createNewNetwork(ctx, name);
+                })
+            )
+        )
+        .then(Commands.literal("modify")
+            .then(Commands.literal("name")
+                .then(Commands.argument("id", IntegerArgumentType.integer())
+                    .suggests(OWNER_NETWORK_SUGGESTIONS)
+                    .then(Commands.argument("name", StringArgumentType.greedyString())
+                        .executes(ctx -> {
+                            String name = StringArgumentType.getString(ctx, "name");
+                            int id = IntegerArgumentType.getInteger(ctx, "id");
+                            EUNetworkBase network = EUNetworkData.getNetwork(id);
+                            if (network == null) {
+                                ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
+                            } else {
+                                if (network.setNetworkName(name)) {
+                                    ctx.getSource().sendSuccess(
+                                        () -> Component.translatable("message.eunetwork.modify_name_successed"),
+                                        true
+                                    );
+                                } else {
+                                    ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network_name", name));
+                                }
+                            }
+                            return 1;
+                        })
+                    )
+                )
+            )
+        )
         .then(Commands.literal("add")
             .requires(HAS_PERMISSION)
             .then(Commands.argument("id", IntegerArgumentType.integer())
@@ -246,7 +383,7 @@ public class EUNetCommands {
                             ctx.getSource().sendSuccess(
                                 () -> Component.translatable(
                                     "message.eunetwork.add_successed",
-                                    Component.literal("" + network.getId()).withStyle(NUMBER),
+                                    Component.literal("" + network.getId()).withStyle(ChatFormatting.GOLD),
                                     Component.literal(nf.format(inserted)).withStyle(NUMBER)),
                                 true
                             );
@@ -268,6 +405,9 @@ public class EUNetCommands {
         INVITE("invite", "Invite other to the network", "邀请玩家来到这个网络"),
         LEAVE("leave", "Leave the network", "离开这个网络"),
         KICK("kick", "Kick other from your network", "从你的网络踢出玩家"),
+        TRANSFER("transfer", "Transfer your network to other", "转让你的网络所有权给别的玩家"),
+        CREATE("create", "Create a new network", "创建一个新网络"),
+        MODIFY("modify", "Modify network", "修改网络"),
         ADD("add", "Add energy to the network", "添加能量到网络中");
 
         private final String subCommand;

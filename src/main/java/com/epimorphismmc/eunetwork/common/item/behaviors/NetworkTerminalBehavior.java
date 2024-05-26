@@ -43,7 +43,7 @@ public class NetworkTerminalBehavior implements IInteractionItem {
                                 return InteractionResult.CONSUME;
                             }
                         }
-                        var network = EUNetworkData.getInstance().createNetwork(context.getPlayer(), "Test");
+                        var network = EUNetworkData.getInstance().createNetwork(player, player.getName().getString() + " s' Network");
                         if (network != null) {
                             networkMachine.setEUNetwork(context.getPlayer(), network);
                             tag.putInt("network", network.getId());

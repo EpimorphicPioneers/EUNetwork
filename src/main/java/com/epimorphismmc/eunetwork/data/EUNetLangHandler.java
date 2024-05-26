@@ -57,7 +57,7 @@ public class EUNetLangHandler {
             provider.add(sub.getTranslateKey(), sub.getEnHelpMessage(), sub.getCnHelpMessage());
         }
 
-        provider.add("message.eunetwork.network_id", "Network ID: %d", "网络 ID：%d");
+        provider.add("message.eunetwork.network_id", "Network ID: %s", "网络 ID：%s");
         provider.add("message.eunetwork.network_storage", "Storage: %s EU", "已存储：%s EU");
         provider.add("message.eunetwork.invalid_number", "Invalid number: %s", "无效的数字：%s");
         provider.add("message.eunetwork.invalid_network", "Invalid Network: %d", "无效的网络：%d");
@@ -71,6 +71,14 @@ public class EUNetLangHandler {
         provider.add("message.eunetwork.unknow_response", "UnKnow response: %d", "未知的回应：%d");
         provider.add("message.eunetwork.help_message", "EUNetwork help message", "EUNetwork 帮助信息");
         provider.add("message.eunetwork.click_to_fill", "Click to fill command", "单击来填充命令");
+        provider.add("message.eunetwork.click_to_kick", "Click to kick player", "单击来踢出玩家");
+        provider.add("message.eunetwork.click_to_transfer", "Click to transfer network", "单击来转让权限");
+        provider.add("message.eunetwork.invalid_network_name", "Invalid Network name: %s", "无效的网络名字：%s");
+        provider.add("message.eunetwork.network_limited", "The number of networks exceeds the limit", "网络数量超出限制");
+        provider.add("message.eunetwork.create_success", "New network created successfully", "新网络创建成功");
+        provider.add("message.eunetwork.network_name", "Network Name: %s", "网络名称：%s");
+        provider.add("message.eunetwork.modify_name_successed", "Modify network name successfully", "修改网络名称成功");
+        provider.add("message.eunetwork.click_to_change_name", "Click to modify network name", "单击来修改网络名称");
     }
 
     private static void addWirelessEnergyHatchName(MOLangProvider provider, int amperage, boolean isInput, int... tiers) {
