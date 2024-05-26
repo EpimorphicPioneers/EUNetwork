@@ -1,6 +1,7 @@
 package com.epimorphismmc.eunetwork.data;
 
 import com.epimorphismmc.eunetwork.api.AccessLevel;
+import com.epimorphismmc.eunetwork.common.data.EUNetCommands;
 import com.epimorphismmc.monomorphism.datagen.lang.MOLangProvider;
 import com.gregtechceu.gtceu.api.GTValues;
 
@@ -52,18 +53,24 @@ public class EUNetLangHandler {
             provider.add(accessLevel.getTranslationKey(), accessLevel.getEnString(), accessLevel.getCnString());
         }
 
+        for (var sub : EUNetCommands.EUNetSubCommand.values()) {
+            provider.add(sub.getTranslateKey(), sub.getEnHelpMessage(), sub.getCnHelpMessage());
+        }
+
         provider.add("message.eunetwork.network_id", "Network ID: %d", "网络 ID：%d");
         provider.add("message.eunetwork.network_storage", "Storage: %s EU", "已存储：%s EU");
         provider.add("message.eunetwork.invalid_number", "Invalid number: %s", "无效的数字：%s");
         provider.add("message.eunetwork.invalid_network", "Invalid Network: %d", "无效的网络：%d");
         provider.add("message.eunetwork.add_successed", "Network %d Energy added successfully, added: %s", "网络 %d 能量添加成功，已添加：%s");
         provider.add("message.eunetwork.all_members", "All Members", "所有成员");
-        provider.add("message.eunetwork.invite_successes", "Invite %s Successes", "邀请 %s 成功");
+        provider.add("message.eunetwork.successes", "Successes", "成功");
         provider.add("message.eunetwork.not_network_owner", "Not Network Owner", "不是网络所有者");
         provider.add("message.eunetwork.not_network_admin", "Not Network Admin", "不是网络管理员");
         provider.add("message.eunetwork.not_space", "Not Enough Space", "没有足够的空间");
         provider.add("message.eunetwork.invalid_user", "Invalid User", "无效的用户");
         provider.add("message.eunetwork.unknow_response", "UnKnow response: %d", "未知的回应：%d");
+        provider.add("message.eunetwork.help_message", "EUNetwork help message", "EUNetwork 帮助信息");
+        provider.add("message.eunetwork.click_to_fill", "Click to fill command", "单击来填充命令");
     }
 
     private static void addWirelessEnergyHatchName(MOLangProvider provider, int amperage, boolean isInput, int... tiers) {

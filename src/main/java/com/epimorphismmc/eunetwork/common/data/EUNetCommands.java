@@ -11,20 +11,23 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.util.Collection;
-import java.util.function.Supplier;
 import java.util.function.Predicate;
 
 public class EUNetCommands {
@@ -33,12 +36,54 @@ public class EUNetCommands {
     private static final Style NUMBER = Style.EMPTY.withColor(0x886eff);
 
     private static final Predicate<CommandSourceStack> HAS_PERMISSION = s -> s.hasPermission(2);
-    private static final Supplier<RequiredArgumentBuilder<CommandSourceStack, Integer>> NETWORK_ARGUMENT = () ->
-        Commands.argument("id", IntegerArgumentType.integer())
-            .suggests((ctx, builder) -> {
-                EUNetworkData.getAllNetworks().forEach(n -> builder.suggest(n.getId()));
-                return builder.buildFuture();
-            });
+    private static final SuggestionProvider<CommandSourceStack> ALL_NETWORK_SUGGESTIONS = (ctx, builder) -> {
+        EUNetworkData.getAllNetworks().forEach(n -> builder.suggest(n.getId()));
+        return builder.buildFuture();
+    };
+    private static final SuggestionProvider<CommandSourceStack> OWNER_NETWORK_SUGGESTIONS = (ctx, builder) -> {
+        ServerPlayer player = ctx.getSource().getPlayer();
+        if (player == null) return Suggestions.empty();
+        EUNetworkData.getAllNetworks().stream()
+            .filter(n -> n.getOwnerUUID().equals(player.getUUID()))
+            .forEach(n -> builder.suggest(n.getId()));
+        return builder.buildFuture();
+    };
+    private static final SuggestionProvider<CommandSourceStack> ACCESSABLE_NETWORK_SUGGESTIONS = (ctx, builder) -> {
+        ServerPlayer player = ctx.getSource().getPlayer();
+        if (player == null) return Suggestions.empty();
+        EUNetworkData.getAllNetworks().stream()
+            .filter(n -> n.canPlayerAccess(player.getUUID()))
+            .forEach(n -> builder.suggest(n.getId()));
+        return builder.buildFuture();
+    };
+    private static final SuggestionProvider<CommandSourceStack> ALL_PLAYER_SUGGESTIONS = (ctx, builder) -> {
+        for (String playerName : ctx.getSource().getServer().getPlayerNames()) {
+            builder.suggest(playerName);
+        }
+        return builder.buildFuture();
+    };
+
+    private static int sendHelpMessage(CommandContext<CommandSourceStack> ctx) {
+        ctx.getSource().sendSuccess(
+            () -> Component.empty()
+                .append(Component.literal("======= ").withStyle(ChatFormatting.GRAY))
+                .append(Component.translatable("message.eunetwork.help_message").withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(" =======").withStyle(ChatFormatting.GRAY)),
+            true
+        );
+        for (var sub : EUNetSubCommand.values()) {
+            ctx.getSource().sendSuccess(
+                () -> Component.literal("/%s %s: ".formatted(EUNet.MODID, sub.getSubCommand()))
+                    .withStyle(style -> style.withColor(ChatFormatting.GRAY)
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/%s %s ".formatted(EUNet.MODID, sub.getSubCommand())))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("message.eunetwork.click_to_fill")))
+                    )
+                    .append(Component.translatable(sub.getTranslateKey()).withStyle(ChatFormatting.GREEN)),
+                true
+            );
+        }
+        return 1;
+    }
 
     private static void sendNetworkInfo(CommandContext<CommandSourceStack> ctx, EUNetworkBase network) {
         ctx.getSource().sendSuccess(
@@ -71,7 +116,30 @@ public class EUNetCommands {
         }
     }
 
+    private static void sendChangeMembershipResponse(CommandContext<CommandSourceStack> ctx, int response) {
+        switch (response) {
+            case EUNetValues.RESPONSE_SUCCESS -> ctx.getSource().sendSuccess(
+                () -> Component.translatable("message.eunetwork.successes"),
+                true
+            );
+            case EUNetValues.RESPONSE_NO_OWNER ->
+                ctx.getSource().sendFailure(Component.translatable("message.eunetwork.not_network_owner"));
+            case EUNetValues.RESPONSE_NO_ADMIN ->
+                ctx.getSource().sendFailure(Component.translatable("message.eunetwork.not_network_admin"));
+            case EUNetValues.RESPONSE_NO_SPACE ->
+                ctx.getSource().sendFailure(Component.translatable("message.eunetwork.not_space"));
+            case EUNetValues.RESPONSE_INVALID_USER ->
+                ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_user"));
+            default ->
+                ctx.getSource().sendFailure(Component.translatable("message.eunetwork.unknow_response", response));
+        }
+    }
+
     private static final LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(EUNet.MODID)
+        .executes(EUNetCommands::sendHelpMessage)
+        .then(Commands.literal("help")
+            .executes(EUNetCommands::sendHelpMessage)
+        )
         .then(Commands.literal("info")
             .executes(ctx -> {
                 ServerPlayer player = ctx.getSource().getPlayerOrException();
@@ -82,7 +150,8 @@ public class EUNetCommands {
                 }
                 return 1;
             })
-            .then(NETWORK_ARGUMENT.get()
+            .then(Commands.argument("id", IntegerArgumentType.integer())
+                .suggests(ACCESSABLE_NETWORK_SUGGESTIONS)
                 .executes(ctx -> {
                     int id = IntegerArgumentType.getInteger(ctx, "id");
                     EUNetworkBase network = EUNetworkData.getNetwork(id);
@@ -92,16 +161,14 @@ public class EUNetCommands {
                         sendNetworkInfo(ctx, network);
                     }
                     return 1;
-                })))
+                })
+            )
+        )
         .then(Commands.literal("invite")
-            .then(NETWORK_ARGUMENT.get()
+            .then(Commands.argument("id", IntegerArgumentType.integer())
+                .suggests(OWNER_NETWORK_SUGGESTIONS)
                 .then(Commands.argument("player", EntityArgument.player())
-                    .suggests((ctx, builder) -> {
-                        for (String playerName : ctx.getSource().getServer().getPlayerNames()) {
-                            builder.suggest(playerName);
-                        }
-                        return builder.buildFuture();
-                    })
+                    .suggests(ALL_PLAYER_SUGGESTIONS)
                     .executes(ctx -> {
                         ServerPlayer player = ctx.getSource().getPlayerOrException();
                         int id = IntegerArgumentType.getInteger(ctx, "id");
@@ -111,26 +178,45 @@ public class EUNetCommands {
                             ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
                         } else {
                             int response = network.changeMembership(player, playerInvited.getUUID(), EUNetValues.MEMBERSHIP_SET_USER);
-                            switch (response) {
-                                case EUNetValues.RESPONSE_SUCCESS -> ctx.getSource().sendSuccess(
-                                    () -> Component.translatable(
-                                        "message.eunetwork.invite_successes",
-                                        playerInvited.getDisplayName().copy().withStyle(ChatFormatting.LIGHT_PURPLE)
-                                    ),
-                                    true
-
-                                );
-                                case EUNetValues.RESPONSE_NO_OWNER ->
-                                    ctx.getSource().sendFailure(Component.translatable("message.eunetwork.not_network_owner"));
-                                case EUNetValues.RESPONSE_NO_ADMIN ->
-                                    ctx.getSource().sendFailure(Component.translatable("message.eunetwork.not_network_admin"));
-                                case EUNetValues.RESPONSE_NO_SPACE ->
-                                    ctx.getSource().sendFailure(Component.translatable("message.eunetwork.not_space"));
-                                case EUNetValues.RESPONSE_INVALID_USER ->
-                                    ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_user"));
-                                default ->
-                                    ctx.getSource().sendFailure(Component.translatable("message.eunetwork.unknow_response", response));
-                            }
+                            sendChangeMembershipResponse(ctx, response);
+                        }
+                        return 1;
+                    })
+                )
+            )
+        )
+        .then(Commands.literal("leave")
+            .then(Commands.argument("id", IntegerArgumentType.integer())
+                .suggests(ACCESSABLE_NETWORK_SUGGESTIONS)
+                .executes(ctx -> {
+                    int id = IntegerArgumentType.getInteger(ctx, "id");
+                    EUNetworkBase network = EUNetworkData.getNetwork(id);
+                    if (network == null) {
+                        ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
+                    } else {
+                        ServerPlayer player = ctx.getSource().getPlayerOrException();
+                        int response = network.changeMembership(player, player.getUUID(), EUNetValues.MEMBERSHIP_CANCEL_MEMBERSHIP);
+                        sendChangeMembershipResponse(ctx, response);
+                    }
+                    return 1;
+                })
+            )
+        )
+        .then(Commands.literal("kick")
+            .then(Commands.argument("id", IntegerArgumentType.integer())
+                .suggests(OWNER_NETWORK_SUGGESTIONS)
+                .then(Commands.argument("player", EntityArgument.player())
+                    .suggests(ALL_PLAYER_SUGGESTIONS)
+                    .executes(ctx -> {
+                        ServerPlayer player = ctx.getSource().getPlayerOrException();
+                        int id = IntegerArgumentType.getInteger(ctx, "id");
+                        ServerPlayer playerKicked = EntityArgument.getPlayer(ctx, "player");
+                        EUNetworkBase network = EUNetworkData.getNetwork(id);
+                        if (network == null) {
+                            ctx.getSource().sendFailure(Component.translatable("message.eunetwork.invalid_network", id));
+                        } else {
+                            int response = network.changeMembership(player, playerKicked.getUUID(), EUNetValues.MEMBERSHIP_CANCEL_MEMBERSHIP);
+                            sendChangeMembershipResponse(ctx, response);
                         }
                         return 1;
                     })
@@ -139,7 +225,8 @@ public class EUNetCommands {
         )
         .then(Commands.literal("add")
             .requires(HAS_PERMISSION)
-            .then(NETWORK_ARGUMENT.get()
+            .then(Commands.argument("id", IntegerArgumentType.integer())
+                .suggests(ALL_NETWORK_SUGGESTIONS)
                 .then(Commands.argument("value", StringArgumentType.string())
                     .executes(ctx -> {
                         int id = IntegerArgumentType.getInteger(ctx, "id");
@@ -165,10 +252,36 @@ public class EUNetCommands {
                             );
                         }
                         return 1;
-                    })))
+                    })
+                )
+            )
         );
 
     public static void init(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(root);
+    }
+
+    @Getter
+    public enum EUNetSubCommand {
+        HELP("help", "Show the message", "显示这条信息"),
+        INFO("info", "Show the network information", "显示网络信息"),
+        INVITE("invite", "Invite other to the network", "邀请玩家来到这个网络"),
+        LEAVE("leave", "Leave the network", "离开这个网络"),
+        KICK("kick", "Kick other from your network", "从你的网络踢出玩家"),
+        ADD("add", "Add energy to the network", "添加能量到网络中");
+
+        private final String subCommand;
+        private final String enHelpMessage;
+        private final String cnHelpMessage;
+
+        EUNetSubCommand(String subCommand, String enHelpMessage, String cnHelpMessage) {
+            this.subCommand = subCommand;
+            this.enHelpMessage = enHelpMessage;
+            this.cnHelpMessage = cnHelpMessage;
+        }
+
+        public String getTranslateKey() {
+            return "message.%s.command.%s".formatted(EUNet.MODID, subCommand);
+        }
     }
 }
