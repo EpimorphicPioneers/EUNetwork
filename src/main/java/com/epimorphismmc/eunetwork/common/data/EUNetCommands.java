@@ -89,7 +89,7 @@ public class EUNetCommands {
         );
     }
 
-    private static @NotNull Component numberText(BigInteger number) {
+    public static @NotNull Component numberText(BigInteger number) {
         String text = MOFormattingUtils.abbreviate2F(number);
 
         if (text.matches(".*[a-zA-Z]$")) {

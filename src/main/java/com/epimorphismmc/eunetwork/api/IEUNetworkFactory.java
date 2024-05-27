@@ -13,5 +13,5 @@ public interface IEUNetworkFactory<T extends EUNetwork> {
 
     T deserialize(CompoundTag tag, byte type);
 
-    ResourceLocation getType();
+    String getType();
 }

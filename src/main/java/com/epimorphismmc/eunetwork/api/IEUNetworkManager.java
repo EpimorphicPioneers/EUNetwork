@@ -17,7 +17,7 @@ public interface IEUNetworkManager {
     default Collection<EUNetwork> getNetworkByPlayer(ServerPlayer player) {
         return getNetworkByUUID(player.getUUID());
     }
-    EUNetwork createNetwork(@NotNull Player creator, @NotNull String name, @NotNull ResourceLocation type);
+    EUNetwork createNetwork(@NotNull Player creator, @NotNull String name, @NotNull String type);
     void deleteNetwork(@NotNull EUNetwork network);
     void setDirty();
 }

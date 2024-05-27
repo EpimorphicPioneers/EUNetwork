@@ -1,6 +1,6 @@
 package com.epimorphismmc.eunetwork.network.eunetwork;
 
-import com.epimorphismmc.eunetwork.client.ClientCache;
+import com.epimorphismmc.eunetwork.client.ClientEUNetworkManager;
 import com.epimorphismmc.eunetwork.common.EUNetworkBase;
 import com.epimorphismmc.eunetwork.network.c2s.CPacketEUNetworkPayload;
 import com.epimorphismmc.monomorphism.client.utils.ClientUtils;
@@ -139,7 +139,7 @@ public class ClientMessageHandler {
         if (p == null) {
             return;
         }
-        ClientCache.updateNetwork(map, type);
+        ClientEUNetworkManager.getInstance().updateNetwork(map, type);
 
     }
 
@@ -150,7 +150,7 @@ public class ClientMessageHandler {
         if (p == null) {
             return;
         }
-        ClientCache.deleteNetwork(id);
+        ClientEUNetworkManager.getInstance().deleteNetwork(id);
 
     }
 

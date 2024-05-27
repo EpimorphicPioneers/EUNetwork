@@ -1,6 +1,7 @@
 package com.epimorphismmc.eunetwork.common;
 
-import net.minecraft.network.FriendlyByteBuf;
+import com.epimorphismmc.eunetwork.api.EUNetValues;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -8,7 +9,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ClientEUNetwork extends EUNetworkBase {
     public ClientEUNetwork(int ignored) {/**/}
 
-    public ClientEUNetwork fromByteBuf(FriendlyByteBuf buf) {
-        return null;
+    public void fromNetwork(CompoundTag tag, byte type) {
+        this.id = tag.getInt(EUNetValues.NETWORK_ID);
+        this.name = tag.getString(NETWORK_NAME);
+        this.owner = tag.getUUID(OWNER_UUID);
     }
 }

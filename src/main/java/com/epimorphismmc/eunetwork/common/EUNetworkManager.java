@@ -32,7 +32,7 @@ import static com.epimorphismmc.eunetwork.EUNet.network;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
+public final class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
 
     public static final String NETWORK_DATA = EUNet.MODID + "data";
 
@@ -42,7 +42,7 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
 
     private static final String UNIQUE_ID = "uniqueID";
 
-    private static final Map<ResourceLocation, IEUNetworkFactory<? extends EUNetwork>> factories = new HashMap<>();
+    private static final Map<String, IEUNetworkFactory<? extends EUNetwork>> FACTORIES = new HashMap<>();
 
     private final Int2ObjectMap<EUNetwork> networks = new Int2ObjectOpenHashMap<>();
 
@@ -91,7 +91,7 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
     }
 
     @Nullable
-    public EUNetwork createNetwork(@NotNull Player creator, @NotNull String name, ResourceLocation type) {
+    public EUNetwork createNetwork(@NotNull Player creator, @NotNull String name, String type) {
         final int max = EUNetConfigHolder.INSTANCE.maximumPerPlayer;
         if (max != -1) {
             if (max <= 0) {
@@ -109,7 +109,7 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
             uniqueID++;
         } while (networks.containsKey(uniqueID));
 
-        var factory = factories.get(type);
+        var factory = FACTORIES.get(type);
         if (factory == null) {
             EUNet.logger().error("Unknown network type: " + type);
             return null;
@@ -118,6 +118,7 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
         final EUNetwork network = factory.createEUNetwork(uniqueID, name, creator);
 
         networks.put(network.getId(), network);
+        this.setDirty();
         network().sendToAll(MessageHandler.updateNetwork(network, EUNetValues.NBT_NET_BASIC));
         return network;
     }
@@ -126,12 +127,17 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
     public void deleteNetwork(@NotNull EUNetwork network) {
         if (networks.remove(network.getId()) == network) {
             network.onDelete();
+            this.setDirty();
             MessageHandler.deleteNetwork(network.getId());
         }
     }
 
     public static void registerFactory(IEUNetworkFactory<? extends IEUNetwork> factory) {
-        factories.put(factory.getType(), factory);
+        FACTORIES.put(factory.getType(), factory);
+    }
+
+    public static Collection<String> getNetworkTypes() {
+        return FACTORIES.keySet();
     }
 
     private void read(@NotNull CompoundTag compound) {
@@ -141,12 +147,10 @@ public class EUNetworkManager extends MOSavedData implements IEUNetworkManager {
             var tag = list.getCompound(i);
             if (tag.contains("type", Tag.TAG_STRING)) {
                 var type = ResourceLocation.tryParse(tag.getString("type"));
-                var factory = factories.get(type);
-                if (factory != null) {
-                    var network = factory.deserialize(list.getCompound(i), EUNetValues.NBT_SAVE_ALL);
-                    if (network.getId() > 0) {
-                        this.networks.put(network.getId(), network);
-                    }
+                var factory = FACTORIES.getOrDefault(type, ServerEUNetwork.FACTORY);
+                var network = factory.deserialize(list.getCompound(i), EUNetValues.NBT_SAVE_ALL);
+                if (network.getId() > 0) {
+                    this.networks.put(network.getId(), network);
                 }
             }
         }

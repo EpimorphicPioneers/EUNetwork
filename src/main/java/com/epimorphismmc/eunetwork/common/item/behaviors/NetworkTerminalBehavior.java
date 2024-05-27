@@ -1,21 +1,28 @@
 package com.epimorphismmc.eunetwork.common.item.behaviors;
 
+import com.epimorphismmc.eunetwork.api.gui.widget.EUNetworkView;
 import com.epimorphismmc.eunetwork.api.machine.feature.IEUNetworkMachine;
 import com.epimorphismmc.eunetwork.common.EUNetworkManager;
 import com.epimorphismmc.eunetwork.common.data.EUNetworkTypes;
-import com.epimorphismmc.eunetwork.common.data.EUNetworkTypes;
+import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.item.component.IInteractionItem;
+import com.gregtechceu.gtceu.api.item.component.IItemUIFactory;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.lowdragmc.lowdraglib.gui.factory.HeldItemUIFactory;
+import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
+import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
+import com.lowdragmc.lowdraglib.gui.widget.custom.PlayerInventoryWidget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class NetworkTerminalBehavior implements IInteractionItem {
+public class NetworkTerminalBehavior implements IInteractionItem, IItemUIFactory {
 
     @Nullable
     protected CompoundTag getTerminalStatsTag(ItemStack itemStack) {
@@ -57,5 +64,15 @@ public class NetworkTerminalBehavior implements IInteractionItem {
             }
         }
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public ModularUI createUI(HeldItemUIFactory.HeldItemHolder holder, Player entityPlayer) {
+        var playerInventory = new WidgetGroup(166, 116, 172, 86)
+                .addWidget(new PlayerInventoryWidget());
+        return new ModularUI(340, 204, holder, entityPlayer)
+                .background(GuiTextures.BACKGROUND)
+                .widget(playerInventory)
+                .widget(new EUNetworkView(0, 0, 340, 204));
     }
 }

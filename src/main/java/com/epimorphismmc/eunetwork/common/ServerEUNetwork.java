@@ -31,12 +31,12 @@ public class ServerEUNetwork extends EUNetwork {
         @Override
         public ServerEUNetwork deserialize(CompoundTag tag, byte type) {
             var network = new ServerEUNetwork();
-            network.deserializeNBT(tag, type);
+            network.deserialize(tag, type);
             return network;
         }
 
         @Override
-        public ResourceLocation getType() {
+        public String getType() {
             return EUNetworkTypes.BUILT;
         }
     };
@@ -93,6 +93,7 @@ public class ServerEUNetwork extends EUNetwork {
 
     @Override
     public int changeMembership(@Nonnull Player player, @Nonnull UUID targetUUID, byte type) {
+        EUNetworkManager.getInstance().setDirty();
         final AccessLevel access = getPlayerAccess(player);
         boolean editPermission = access.canEdit();
         boolean ownerPermission = access.canDelete();
@@ -218,16 +219,11 @@ public class ServerEUNetwork extends EUNetwork {
     }
 
     @Override
-    public FriendlyByteBuf toByteBuf() {
-        return null;
-    }
-
-    @Override
     public IEUNetworkFactory<? extends IEUNetwork> getFactory() {
         return FACTORY;
     }
 
-    public void deserializeNBT(@Nonnull CompoundTag tag, byte type) {
+    public void deserialize(@Nonnull CompoundTag tag, byte type) {
         if (type == EUNetValues.NBT_NET_BASIC || type == EUNetValues.NBT_SAVE_ALL) {
             this.id = tag.getInt(EUNetValues.NETWORK_ID);
             this.name = tag.getString(NETWORK_NAME);

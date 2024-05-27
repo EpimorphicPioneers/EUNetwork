@@ -22,13 +22,18 @@ public abstract class EUNetwork extends EUNetworkBase {
     }
 
     public abstract void serialize(@Nonnull CompoundTag tag, byte type);
-    public abstract FriendlyByteBuf toByteBuf();
     public abstract IEUNetworkFactory<? extends IEUNetwork> getFactory();
 
     /**
      * Ticks the server. Server only.
      */
     public void onEndServerTick() {
+    }
+
+    @Override
+    public boolean setName(@NotNull String name) {
+        EUNetworkManager.getInstance().setDirty();
+        return super.setName(name);
     }
 
     /**

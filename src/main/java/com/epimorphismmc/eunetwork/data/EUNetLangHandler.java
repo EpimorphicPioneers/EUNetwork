@@ -57,6 +57,11 @@ public class EUNetLangHandler {
             provider.add(sub.getTranslateKey(), sub.getEnHelpMessage(), sub.getCnHelpMessage());
         }
 
+        provider.add("eunetwork.player", "User: %s", "用户: %s");
+        provider.add("eunetwork.network_number", "Networks: %s", "网络数量: %s");
+        provider.add("eunetwork.confirm", "Confirm", "确认");
+        provider.add("eunetwork.cancel", "Cancel", "取消");
+
         provider.add("message.eunetwork.network_id", "Network ID: %s", "网络 ID：%s");
         provider.add("message.eunetwork.network_storage", "Storage: %s EU", "已存储：%s EU");
         provider.add("message.eunetwork.invalid_number", "Invalid number: %s", "无效的数字：%s");

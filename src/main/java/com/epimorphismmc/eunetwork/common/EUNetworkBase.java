@@ -44,14 +44,14 @@ public abstract class EUNetworkBase implements IEUNetwork {
     //////////////////////////////////////
 
     @Getter
-    int id; // 正整数或 EUNetConstants.INVALID_NETWORK_ID
+    protected int id; // 正整数或 EUNetConstants.INVALID_NETWORK_ID
     @Getter
-    String name;
+    protected String name;
     @Getter
-    UUID owner;
+    protected UUID owner;
 
-    final NetworkStatistics mStatistics = new NetworkStatistics(this);
-    final HashMap<UUID, NetworkMember> mMemberMap = new HashMap<>();
+    protected final NetworkStatistics mStatistics = new NetworkStatistics(this);
+    protected final HashMap<UUID, NetworkMember> mMemberMap = new HashMap<>();
 
     EUNetworkBase() {/**/}
 
