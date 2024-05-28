@@ -28,7 +28,7 @@ dependencyResolutionManagement {
         def registrateForgeVersion = "MC1.20-1.3.3"
         def jadeForgeVersion = "11.7.1"
         def monomorphismVersion = "1.0.10-build.15"
-        def ftbTeamForgeVersion = "5267190"
+        def ftbTeamForgeVersion = "2001.3.0"
 
         // Libs
         def quiltMappingsVersion = "5"  // https://lambdaurora.dev/tools/import_quilt.html
@@ -84,7 +84,7 @@ dependencyResolutionManagement {
 
 
             def ftbTeam = version("ftbteam", ftbTeamForgeVersion)
-            library("ftbteam", "curse.maven", "ftbTeam-404468").versionRef(ftbTeam)
+            library("ftbteam", "dev.ftb.mods", "ftb-teams-forge").versionRef(ftbTeam)
 
             def ftbLib = version("ftblib", ftbLibVersion)
             library("ftblib", "dev.ftb.mods", "ftb-library-forge").versionRef(ftbLib)
