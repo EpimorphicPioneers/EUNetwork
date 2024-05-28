@@ -8,19 +8,22 @@ import com.lowdragmc.lowdraglib.utils.LocalizationUtils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.util.Mth;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class TextInputWidget extends DraggableWidgetGroup {
 
-    @Setter @Accessors(chain = true)
+    @Setter
+    @Accessors(chain = true)
     private Consumer<String> onConfirm;
-    @Setter @Accessors(chain = true)
+    @Setter
+    @Accessors(chain = true)
     private Consumer<String> onCancel;
     private TextFieldWidget textField;
-    @Setter @Getter
+    @Setter
+    @Accessors(chain = true)
+    @Getter
     private String text = "";
 
     public TextInputWidget() {
