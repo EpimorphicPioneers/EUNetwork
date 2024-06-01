@@ -4,7 +4,6 @@ import com.epimorphismmc.eunetwork.api.EUNetValues;
 import com.epimorphismmc.eunetwork.api.IEUNetwork;
 import com.epimorphismmc.eunetwork.api.IEUNetworkFactory;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
