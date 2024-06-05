@@ -27,7 +27,7 @@ dependencyResolutionManagement {
         def forgeVersion = "47.2.0"
         def registrateForgeVersion = "MC1.20-1.3.3"
         def jadeForgeVersion = "11.7.1"
-        def monomorphismVersion = "1.0.10-build.15"
+        def monomorphismVersion = "1.0.10-build.21"
         def ftbTeamForgeVersion = "2001.3.0"
 
         // Libs

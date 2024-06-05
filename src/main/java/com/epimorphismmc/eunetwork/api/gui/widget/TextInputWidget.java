@@ -1,5 +1,6 @@
 package com.epimorphismmc.eunetwork.api.gui.widget;
 
+import com.epimorphismmc.monomorphism.gui.widget.DraggableWidget;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.lowdragmc.lowdraglib.gui.texture.TextTexture;
 import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
@@ -12,7 +13,7 @@ import lombok.experimental.Accessors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class TextInputWidget extends DraggableWidgetGroup {
+public class TextInputWidget extends DraggableWidget {
 
     @Setter
     @Accessors(chain = true)
